@@ -1,0 +1,65 @@
+﻿@{
+    var activeSection = ViewBag.ActiveSection as string ?? "database";
+}
+
+<div class="settings-sidebar animate__animated animate__fadeInLeft">
+    <div class="settings-sidebar-header">
+        <div class="settings-icon-main">
+            <i class="fas fa-sliders"></i>
+        </div>
+        <div>
+            <h3>Paramètres</h3>
+            <p>Gestion du système</p>
+        </div>
+    </div>
+
+    <ul class="settings-nav">
+        <li>
+            <a href="@Url.Action("Database", "Settings")" class="@(activeSection == "database" ? "active" : "")">
+                <div class="nav-icon nav-icon-blue"><i class="fas fa-database"></i></div>
+                <div class="nav-content">
+                    <div class="nav-title">Base de Données</div>
+                    <div class="nav-subtitle">Sélection de l'exercice</div>
+                </div>
+                <i class="fas fa-chevron-right nav-arrow"></i>
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("Users", "Settings")" class="@(activeSection == "users" ? "active" : "")">
+                <div class="nav-icon nav-icon-green"><i class="fas fa-users"></i></div>
+                <div class="nav-content">
+                    <div class="nav-title">Utilisateurs</div>
+                    <div class="nav-subtitle">Gestion des comptes</div>
+                </div>
+                <i class="fas fa-chevron-right nav-arrow"></i>
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("Support", "Settings")" class="@(activeSection == "support" ? "active" : "")">
+                <div class="nav-icon nav-icon-orange"><i class="fas fa-headset"></i></div>
+                <div class="nav-content">
+                    <div class="nav-title">Support & Contact</div>
+                    <div class="nav-subtitle">Aide et assistance</div>
+                </div>
+                <i class="fas fa-chevron-right nav-arrow"></i>
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("About", "Settings")" class="@(activeSection == "about" ? "active" : "")">
+                <div class="nav-icon nav-icon-purple"><i class="fas fa-circle-info"></i></div>
+                <div class="nav-content">
+                    <div class="nav-title">À propos</div>
+                    <div class="nav-subtitle">Informations système</div>
+                </div>
+                <i class="fas fa-chevron-right nav-arrow"></i>
+            </a>
+        </li>
+    </ul>
+
+    <div class="settings-sidebar-footer">
+        <div class="version-info">
+            <i class="fas fa-code-branch"></i>
+            <span>Version 1.0.0</span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,530 @@
+﻿@{
+    var currentYear = Context.Session.GetString("SelectedYear");
+    var fullName = Context.Session.GetString("FullName") ?? "Utilisateur";
+    var userRole = Context.Session.GetString("UserRole") ?? "Utilisateur";
+}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - COSIDER TP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #C8102E; border-radius: 10px; }
+
+        /* ==================== SIDEBAR - Design Clair ==================== */
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: 290px; height: 100vh;
+            background: #ffffff;
+            color: #2c3e50; z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.05);
+            border-right: 1px solid #e8ecef;
+        }
+        .sidebar.collapsed { width: 85px; }
+
+        .sidebar-header {
+            padding: 22px 20px;
+            text-align: center;
+            border-bottom: 1px solid #eef0f3;
+            background: linear-gradient(135deg, #fafbfc, #ffffff);
+        }
+
+        .logo-wrapper {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            border: 1px solid #f1f5f9;
+        }
+
+        .sidebar-logo {
+            width: 165px;
+            height: auto;
+            transition: all 0.3s;
+            filter: drop-shadow(0 2px 8px rgba(200, 16, 46, 0.15));
+        }
+        .sidebar.collapsed .sidebar-logo { width: 48px; }
+        .sidebar.collapsed .logo-wrapper { padding: 8px 10px; }
+
+        .sidebar-brand {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 10px;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .sidebar.collapsed .sidebar-brand { display: none; }
+
+        /* Year Badge */
+        .year-badge {
+            margin-top: 15px;
+            background: linear-gradient(135deg, #C8102E, #e63950);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            box-shadow: 0 6px 18px rgba(200, 16, 46, 0.25);
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        .year-badge-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            box-shadow: 0 6px 18px rgba(230, 126, 34, 0.25);
+            animation: badgePulseWarn 1.5s ease-in-out infinite;
+        }
+        .year-badge i { font-size: 14px; }
+        .sidebar.collapsed .year-badge { display: none; }
+
+        @@keyframes badgePulse {
+            0%, 100% { box-shadow: 0 6px 18px rgba(200, 16, 46, 0.25); }
+            50% { box-shadow: 0 6px 25px rgba(200, 16, 46, 0.45); }
+        }
+        @@keyframes badgePulseWarn {
+            0%, 100% { box-shadow: 0 6px 18px rgba(230, 126, 34, 0.25); }
+            50% { box-shadow: 0 6px 25px rgba(230, 126, 34, 0.45); }
+        }
+
+        /* Menu */
+        .sidebar-menu {
+             padding: 18px 0 120px 0;
+             list-style: none;
+         }
+
+        .menu-category {
+            padding: 15px 22px 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+        .sidebar.collapsed .menu-category { display: none; }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 13px 22px;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.25s;
+            border-left: 4px solid transparent;
+            font-size: 15px;
+            font-weight: 500;
+            gap: 14px;
+            position: relative;
+        }
+
+        .sidebar-menu li a:hover {
+            background: linear-gradient(90deg, rgba(200, 16, 46, 0.06), transparent);
+            color: #C8102E;
+            border-left-color: #C8102E;
+        }
+
+        .sidebar-menu li a.active {
+            background: linear-gradient(90deg, rgba(200, 16, 46, 0.1), rgba(200, 16, 46, 0.02));
+            color: #C8102E;
+            border-left-color: #C8102E;
+            font-weight: 600;
+        }
+
+        .sidebar-menu li a i {
+            width: 24px;
+            text-align: center;
+            font-size: 17px;
+            color: #94a3b8;
+            transition: color 0.25s;
+        }
+
+        .sidebar-menu li a:hover i,
+        .sidebar-menu li a.active i {
+            color: #C8102E;
+        }
+
+        .sidebar.collapsed .menu-text { display: none; }
+
+        /* Submenu */
+        .sidebar-menu .submenu {
+            list-style: none;
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: #f8fafc;
+        }
+        .sidebar-menu .submenu.open { max-height: 500px; }
+
+        .sidebar-menu .submenu li a {
+            padding: 10px 22px 10px 60px;
+            font-size: 13.5px;
+            color: #64748b;
+            border-left-color: transparent;
+            font-weight: 500;
+        }
+        .sidebar-menu .submenu li a:hover {
+            color: #C8102E;
+            background: rgba(200, 16, 46, 0.05);
+        }
+        .sidebar-menu .submenu li a::before {
+            content: '●';
+            font-size: 7px;
+            margin-right: 10px;
+            color: #cbd5e1;
+            transition: color 0.25s;
+        }
+        .sidebar-menu .submenu li a:hover::before {
+            color: #C8102E;
+        }
+
+        .menu-arrow {
+            margin-left: auto;
+            font-size: 12px;
+            transition: transform 0.3s;
+            color: #cbd5e1;
+        }
+        .menu-arrow.rotated { transform: rotate(90deg); }
+
+        /* Footer */
+       .sidebar-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 290px;
+    padding: 15px 22px;
+    border-top: 1px solid #eef0f3;
+    background: #ffffff;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.04);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+}
+
+.sidebar.collapsed ~ * .sidebar-footer,
+.sidebar.collapsed .sidebar-footer {
+    width: 85px;
+}
+        .sidebar-footer a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 8px 12px;
+            border-radius: 10px;
+        }
+        .sidebar-footer a:hover {
+            color: #C8102E;
+            background: rgba(200, 16, 46, 0.05);
+        }
+        .sidebar-footer a i { font-size: 16px; }
+
+        /* ==================== TOPBAR ==================== */
+        .topbar {
+            position: fixed; top: 0; left: 290px; right: 0; height: 65px;
+            background: #fff; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 30px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.06); z-index: 999;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar.collapsed ~ .topbar { left: 85px; }
+        .topbar-left { display: flex; align-items: center; gap: 20px; }
+        .toggle-sidebar {
+            background: none; border: none; font-size: 20px; color: #333;
+            cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.3s;
+        }
+        .toggle-sidebar:hover { background: #f0f0f0; color: #C8102E; }
+        .search-box {
+            display: flex; align-items: center; background: #f5f6fa;
+            border-radius: 25px; padding: 8px 18px; gap: 10px; min-width: 300px;
+        }
+        .search-box input {
+            border: none; background: none; outline: none;
+            font-family: 'Poppins', sans-serif; font-size: 13px;
+            width: 100%; color: #333;
+        }
+        .search-box i { color: #aaa; }
+        .topbar-right { display: flex; align-items: center; gap: 15px; }
+        .topbar-date {
+            font-size: 12px; color: #888; background: #f5f6fa;
+            padding: 6px 14px; border-radius: 20px;
+        }
+        .topbar-icon {
+            position: relative; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; background: #f5f6fa;
+            cursor: pointer; transition: all 0.3s;
+            border: none; color: #555; font-size: 16px;
+        }
+        .topbar-icon:hover { background: #C8102E; color: #fff; }
+        .topbar-icon .badge {
+            position: absolute; top: -2px; right: -2px;
+            background: #C8102E; color: #fff; font-size: 9px;
+            width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-profile-topbar {
+            display: flex; align-items: center; gap: 10px;
+            cursor: pointer; padding: 5px 12px; border-radius: 12px;
+            transition: all 0.3s;
+        }
+        .user-profile-topbar:hover { background: #f5f6fa; }
+        .user-avatar {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: linear-gradient(135deg, #C8102E, #e63950);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 14px;
+        }
+        .user-info-topbar { text-align: left; }
+        .user-info-topbar .name { font-size: 13px; font-weight: 600; color: #333; }
+        .user-info-topbar .role { font-size: 10px; color: #999; }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            margin-left: 290px; margin-top: 65px; padding: 30px;
+            min-height: calc(100vh - 65px);
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar.collapsed ~ .main-content { margin-left: 85px; }
+
+        /* Dropdown */
+        .user-dropdown { position: relative; }
+        .dropdown-menu-custom {
+            display: none; position: absolute; top: 55px; right: 0;
+            background: #fff; border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            min-width: 220px; z-index: 1001; overflow: hidden;
+        }
+        .dropdown-menu-custom.show { display: block; animation: fadeInDown 0.3s; }
+        .dropdown-menu-custom a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 18px; text-decoration: none;
+            color: #333; font-size: 13px; transition: all 0.2s;
+        }
+        .dropdown-menu-custom a:hover { background: #fff0f0; color: #C8102E; }
+        .dropdown-menu-custom .dropdown-divider { border-top: 1px solid #f0f0f0; }
+        .dropdown-menu-custom a.logout-link { color: #C8102E; }
+
+        @@keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @@media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .topbar { left: 0 !important; }
+            .main-content { margin-left: 0 !important; }
+            .search-box { min-width: 200px; }
+        }
+        @@media (max-width: 576px) {
+            .search-box { display: none; }
+            .topbar-date { display: none; }
+        } 
+
+    </style>
+    @await RenderSectionAsync("styles", required: false)
+</head>
+<body>
+    <!-- ==================== SIDEBAR ==================== -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-wrapper">
+                <img src="~/images/cosider-logo.png" alt="COSIDER TP" class="sidebar-logo"
+                     onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
+                <div id="logoFallback" style="display:none;">
+                    <div style="font-size:28px; font-weight:900; color:#C8102E; font-style:italic; letter-spacing:-1px;">cosider</div>
+                    <div style="font-size:11px; color:#64748b; letter-spacing:2px; font-weight:600; margin-top:2px;">TRAVAUX PUBLICS</div>
+                </div>
+            </div>
+            <div class="sidebar-brand">SYSTÈME DE GESTION DE STOCK</div>
+
+            @if (!string.IsNullOrEmpty(currentYear))
+            {
+                <div class="year-badge">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Exercice @currentYear</span>
+                </div>
+            }
+            else
+            {
+                <a href="@Url.Action("Index", "Settings")" class="year-badge year-badge-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Sélectionner une année</span>
+                </a>
+            }
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="menu-category">Navigation Principale</li>
+            <li>
+                <a href="@Url.Action("Index", "Dashboard")">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="menu-text">Tableau de Bord</span>
+                </a>
+            </li>
+
+            <li class="menu-category">Gestion de Stock</li>
+            <li>
+                 <a href="javascript:void(0)" onclick="toggleSubmenu('stockMenu', this)">
+                     <i class="fas fa-boxes-stacked"></i>
+                     <span class="menu-text">Stocks</span>
+                     <i class="fas fa-chevron-right menu-arrow"></i>
+                 </a>
+                 <ul class="submenu" id="stockMenu">
+                     <li><a href="@Url.Action("Articles", "Stock")"><span class="menu-text">Liste des Articles</span></a></li>
+                     <li><a href="#"><span class="menu-text">Mouvements de Stock</span></a></li>
+                     <li><a href="#"><span class="menu-text">Arrivage Journalier</span></a></li>
+                 </ul>
+                </li>
+            @* <li>
+                <a href="javascript:void(0)" onclick="toggleSubmenu('stockMenu', this)">
+                    <i class="fas fa-boxes-stacked"></i>
+                    <span class="menu-text">Stocks</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </a>
+                <ul class="submenu" id="stockMenu">
+                    <li><a href="#"><span class="menu-text">Liste des Articles</span></a></li>
+                    <li><a href="#"><span class="menu-text">Mouvements de Stock</span></a></li>
+                    <li><a href="#"><span class="menu-text">Arrivage Journalier</span></a></li>
+                </ul>
+            </li> *@
+            <li><a href="#"><i class="fas fa-cart-shopping"></i><span class="menu-text">Achats</span></a></li>
+            <li><a href="#"><i class="fas fa-hand-holding-dollar"></i><span class="menu-text">Cession Fournie</span></a></li>
+
+            <li class="menu-category">Opérations</li>
+            <li><a href="#"><i class="fas fa-fire"></i><span class="menu-text">Consommations</span></a></li>
+            <li><a href="#"><i class="fas fa-hand-holding"></i><span class="menu-text">Cession Reçue</span></a></li>
+            <li><a href="#"><i class="fas fa-right-from-bracket"></i><span class="menu-text">Sortie Exception</span></a></li>
+
+            <li class="menu-category">Spécialisé</li>
+            <li><a href="#"><i class="fas fa-gears"></i><span class="menu-text">Moteur & Boîte Vitesse</span></a></li>
+            <li><a href="#"><i class="fas fa-gas-pump"></i><span class="menu-text">Gestion de Carburant</span></a></li>
+
+            <li class="menu-category">Système</li>
+            <li>
+                <a href="@Url.Action("Database", "Settings")">
+                   <i class="fas fa-sliders"></i>
+                   <span class="menu-text">Configurations</span>
+                </a>
+               @*  <a href="@Url.Action("Index", "Settings")">
+                    <i class="fas fa-sliders"></i>
+                    <span class="menu-text">Configurations</span>
+                </a> *@
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="@Url.Action("Logout", "Account")">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ==================== TOPBAR ==================== -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <button class="toggle-sidebar" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Rechercher dans le système...">
+            </div>
+        </div>
+        <div class="topbar-right">
+            <span class="topbar-date">
+                <i class="fas fa-calendar-alt"></i>
+                <script>
+                    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    document.write(new Date().toLocaleDateString('fr-FR', options));
+                </script>
+            </span>
+            <button class="topbar-icon">
+                <i class="fas fa-bell"></i>
+                <span class="badge">3</span>
+            </button>
+            <button class="topbar-icon"><i class="fas fa-envelope"></i></button>
+            <div class="user-dropdown">
+                <div class="user-profile-topbar" onclick="toggleUserDropdown()">
+                    <div class="user-avatar">
+                        @{
+                            var initials = "";
+                            var names = fullName.Split(' ');
+                            foreach (var n in names)
+                            {
+                                if (!string.IsNullOrEmpty(n)) initials += n[0];
+                                if (initials.Length >= 2) break;
+                            }
+                            if (string.IsNullOrEmpty(initials)) initials = "U";
+                        }
+                        @initials.ToUpper()
+                    </div>
+                    <div class="user-info-topbar">
+                        <div class="name">@fullName</div>
+                        <div class="role">@userRole</div>
+                    </div>
+                    <i class="fas fa-chevron-down" style="font-size:11px; color:#999;"></i>
+                </div>
+                <div class="dropdown-menu-custom" id="userDropdown">
+                    <a href="#"><i class="fas fa-user"></i> Mon Profil</a>
+                    <a href="@Url.Action("Index", "Settings")"><i class="fas fa-cog"></i> Paramètres</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="@Url.Action("Logout", "Account")" class="logout-link">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            if (window.innerWidth <= 992) sidebar.classList.toggle('mobile-open');
+        }
+        function toggleSubmenu(id, el) {
+            var submenu = document.getElementById(id);
+            submenu.classList.toggle('open');
+            var arrow = el.querySelector('.menu-arrow');
+            if (arrow) arrow.classList.toggle('rotated');
+        }
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+        document.addEventListener('click', function (e) {
+            var dropdown = document.getElementById('userDropdown');
+            var userProfile = document.querySelector('.user-dropdown');
+            if (dropdown && !userProfile.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+    @await RenderSectionAsync("scripts", required: false)
+</body>
+</html>

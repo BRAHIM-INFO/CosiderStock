@@ -1,0 +1,670 @@
+﻿@model List<CosiderStock.Models.User>
+@{
+    ViewBag.Title = "Gestion des utilisateurs";
+    Layout = "_DashboardLayout";
+    var currentUserId = Context.Session.GetInt32("UserId") ?? 0;
+}
+
+@section styles {
+    @await Html.PartialAsync("_SettingsStyles")
+    <style>
+        .users-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .user-stat-card {
+            background: linear-gradient(135deg, #fff, #fafbfc);
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+
+            .user-stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            }
+
+        .user-stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+            .user-stat-icon.total {
+                background: rgba(52,152,219,0.1);
+                color: #3498db;
+            }
+
+            .user-stat-icon.active {
+                background: rgba(46,204,113,0.1);
+                color: #2ecc71;
+            }
+
+            .user-stat-icon.inactive {
+                background: rgba(231,76,60,0.1);
+                color: #e74c3c;
+            }
+
+            .user-stat-icon.admin {
+                background: rgba(155,89,182,0.1);
+                color: #9b59b6;
+            }
+
+        .user-stat-info .value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a1a2e;
+        }
+
+        .user-stat-info .label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 13px 15px 13px 45px;
+            border: 2px solid #e8e8e8;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            background: #fafafa;
+            transition: all 0.3s;
+        }
+
+            .search-input:focus {
+                outline: none;
+                border-color: #C8102E;
+                background: #fff;
+            }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        /* Users Table */
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .user-card {
+            background: #fff;
+            border: 1px solid #f0f0f0;
+            border-radius: 16px;
+            padding: 22px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .user-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+                border-color: rgba(200,16,46,0.15);
+            }
+
+            .user-card.inactive {
+                opacity: 0.7;
+                background: #fafbfc;
+            }
+
+        .user-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .user-avatar-big {
+            width: 55px;
+            height: 55px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #C8102E, #e63950);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 6px 20px rgba(200,16,46,0.2);
+        }
+
+            .user-avatar-big.admin {
+                background: linear-gradient(135deg, #9b59b6, #8e44ad);
+                box-shadow: 0 6px 20px rgba(155,89,182,0.25);
+            }
+
+        .user-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+            .user-details h3 {
+                font-size: 15px;
+                font-weight: 700;
+                color: #1a1a2e;
+                margin: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .user-details .username {
+                font-size: 12px;
+                color: #94a3b8;
+                margin-top: 2px;
+            }
+
+        .user-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .user-badge.active {
+                background: rgba(46,204,113,0.15);
+                color: #27ae60;
+            }
+
+            .user-badge.inactive {
+                background: rgba(231,76,60,0.15);
+                color: #c0392b;
+            }
+
+            .user-badge .dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+            }
+
+            .user-badge.active .dot {
+                background: #2ecc71;
+            }
+
+            .user-badge.inactive .dot {
+                background: #e74c3c;
+            }
+
+        .user-info-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            font-size: 12px;
+        }
+
+            .user-info-row i {
+                width: 20px;
+                color: #C8102E;
+                font-size: 12px;
+            }
+
+            .user-info-row .label {
+                color: #999;
+                min-width: 65px;
+            }
+
+            .user-info-row .value {
+                color: #333;
+                font-weight: 500;
+                word-break: break-all;
+            }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f5f5f5;
+        }
+
+        .role-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+            .role-tag.admin {
+                background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            }
+    </style>
+}
+
+<div class="settings-container">
+    @await Html.PartialAsync("_SettingsSidebar")
+
+    <div class="settings-content animate__animated animate__fadeInRight">
+        <div class="content-header">
+            <div class="content-header-left">
+                <div class="content-header-icon" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <h1>Gestion des Utilisateurs</h1>
+                    <p>Créer, modifier et gérer les comptes utilisateurs</p>
+                </div>
+            </div>
+            <button class="btn-action btn-primary-red" onclick="openAddUserModal()">
+                <i class="fas fa-user-plus"></i>
+                Ajouter un utilisateur
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="users-stats">
+            <div class="user-stat-card">
+                <div class="user-stat-icon total"><i class="fas fa-users"></i></div>
+                <div class="user-stat-info">
+                    <div class="value">@Model.Count</div>
+                    <div class="label">Total utilisateurs</div>
+                </div>
+            </div>
+            <div class="user-stat-card">
+                <div class="user-stat-icon active"><i class="fas fa-user-check"></i></div>
+                <div class="user-stat-info">
+                    <div class="value">@Model.Count(u => u.IsActive)</div>
+                    <div class="label">Actifs</div>
+                </div>
+            </div>
+            <div class="user-stat-card">
+                <div class="user-stat-icon inactive"><i class="fas fa-user-slash"></i></div>
+                <div class="user-stat-info">
+                    <div class="value">@Model.Count(u => !u.IsActive)</div>
+                    <div class="label">Inactifs</div>
+                </div>
+            </div>
+            <div class="user-stat-card">
+                <div class="user-stat-icon admin"><i class="fas fa-user-shield"></i></div>
+                <div class="user-stat-info">
+                    <div class="value">@Model.Count(u => u.Role == "Administrateur")</div>
+                    <div class="label">Administrateurs</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" class="search-input" id="userSearch" placeholder="Rechercher par nom, email ou rôle..." onkeyup="filterUsers()">
+            </div>
+        </div>
+
+        <!-- Users Grid -->
+        <div class="users-grid" id="usersGrid">
+            @foreach (var user in Model)
+            {
+                var initials = "";
+                if (!string.IsNullOrEmpty(user.FullName))
+                {
+                    var names = user.FullName.Split(' ');
+                    foreach (var n in names)
+                    {
+                        if (!string.IsNullOrEmpty(n)) initials += n[0];
+                        if (initials.Length >= 2) break;
+                    }
+                }
+                if (string.IsNullOrEmpty(initials)) initials = user.Username.Length > 0 ? user.Username[0].ToString() : "U";
+                var isAdmin = user.Role == "Administrateur";
+
+                <div class="user-card @(user.IsActive ? "" : "inactive")" data-search="@(user.Username?.ToLower()) @(user.FullName?.ToLower()) @(user.Email?.ToLower()) @(user.Role?.ToLower())">
+                    <div class="user-card-header">
+                        <div class="user-avatar-big @(isAdmin ? "admin" : "")">
+                            @initials.ToUpper()
+                        </div>
+                        <div class="user-details">
+                            <h3>@(string.IsNullOrEmpty(user.FullName) ? user.Username : user.FullName)</h3>
+                            <div class="username">@@@user.Username</div>
+                            <div style="margin-top:6px;">
+                                <span class="role-tag @(isAdmin ? "admin" : "")">
+                                    <i class="fas @(isAdmin ? "fa-shield" : "fa-user")"></i> @user.Role
+                                </span>
+                            </div>
+                        </div>
+                        <span class="user-badge @(user.IsActive ? "active" : "inactive")">
+                            <span class="dot"></span>
+                            @(user.IsActive ? "Actif" : "Inactif")
+                        </span>
+                    </div>
+
+                    <div class="user-info-row">
+                        <i class="fas fa-envelope"></i>
+                        <span class="label">Email:</span>
+                        <span class="value">@(string.IsNullOrEmpty(user.Email) ? "—" : user.Email)</span>
+                    </div>
+                    <div class="user-info-row">
+                        <i class="fas fa-phone"></i>
+                        <span class="label">Tél:</span>
+                        <span class="value">@(string.IsNullOrEmpty(user.Phone) ? "—" : user.Phone)</span>
+                    </div>
+                    <div class="user-info-row">
+                        <i class="fas fa-clock"></i>
+                        <span class="label">Dernière:</span>
+                        <span class="value">@(user.LastLogin.HasValue ? user.LastLogin.Value.ToString("dd/MM/yyyy HH:mm") : "Jamais connecté")</span>
+                    </div>
+
+                    <div class="user-actions">
+                        <button class="btn-icon-only btn-icon-blue" onclick="editUser(@user.Id)" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        @if (user.Id != 1)
+                        {
+                            <button class="btn-icon-only @(user.IsActive ? "btn-icon-orange" : "btn-icon-green")"
+                                    onclick="toggleUserStatus(@user.Id)"
+                                    title="@(user.IsActive ? "Désactiver" : "Activer")">
+                                <i class="fas @(user.IsActive ? "fa-user-slash" : "fa-user-check")"></i>
+                            </button>
+                            <button class="btn-icon-only btn-icon-red" onclick="deleteUser(@user.Id, '@user.Username')" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        }
+                        @if (user.Id == 1)
+                        {
+                            <span style="margin-left:auto; font-size:11px; color:#94a3b8; align-self:center;">
+                                <i class="fas fa-lock"></i> Admin principal
+                            </span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajouter/Modifier -->
+<div class="modal-overlay" id="userModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-icon">
+                <i class="fas fa-user" id="modalIcon"></i>
+            </div>
+            <div>
+                <div class="modal-title" id="modalTitle">Ajouter un utilisateur</div>
+                <div class="modal-subtitle" id="modalSubtitle">Créer un nouveau compte</div>
+            </div>
+            <button class="modal-close" onclick="closeUserModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="userId" value="0">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user"></i> Nom d'utilisateur *</label>
+                    <input type="text" class="form-input" id="username" placeholder="admin">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-id-badge"></i> Nom complet</label>
+                    <input type="text" class="form-input" id="fullName" placeholder="Nom Prénom">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" class="form-input" id="email" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-phone"></i> Téléphone</label>
+                    <input type="text" class="form-input" id="phone" placeholder="+213 XX XX XX XX">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user-shield"></i> Rôle</label>
+                    <select class="form-input" id="role">
+                        <option value="Utilisateur">Utilisateur</option>
+                        <option value="Gestionnaire">Gestionnaire</option>
+                        <option value="Administrateur">Administrateur</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-toggle-on"></i> Statut</label>
+                    <div class="switch-wrapper" style="padding: 10px 0;">
+                        <label class="switch">
+                            <input type="checkbox" id="isActive" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span id="statusLabel" style="font-size:13px; color:#555;">Actif</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="passwordSection">
+                <div class="form-group">
+                    <label class="form-label" id="passwordLabel">
+                        <i class="fas fa-lock"></i> Mot de passe *
+                        <span id="passwordHint" style="color:#94a3b8; font-weight:400; font-size:11px;"></span>
+                    </label>
+                    <input type="password" class="form-input" id="password" placeholder="Minimum 4 caractères">
+                </div>
+
+                <div id="changePasswordWrapper" style="display:none;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #666; cursor: pointer;">
+                        <input type="checkbox" id="changePassword" onchange="togglePasswordField()">
+                        <span>Changer le mot de passe</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-action btn-secondary-gray" onclick="closeUserModal()">Annuler</button>
+            <button class="btn-action btn-primary-red" onclick="saveUser()">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+@section scripts {
+    <script>
+        function showToast(title, message, type) {
+            type = type || 'info';
+            var container = document.getElementById('toastContainer');
+            var toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            var iconClass = 'fa-info-circle';
+            if (type === 'success') iconClass = 'fa-check-circle';
+            else if (type === 'error') iconClass = 'fa-times-circle';
+            else if (type === 'warning') iconClass = 'fa-exclamation-triangle';
+            toast.innerHTML = '<i class="fas ' + iconClass + '"></i><div class="toast-content"><div class="toast-title">' + title + '</div><div class="toast-message">' + message + '</div></div>';
+            container.appendChild(toast);
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { toast.remove(); }, 400);
+            }, 3500);
+        }
+
+        function openAddUserModal() {
+            document.getElementById('userId').value = '0';
+            document.getElementById('username').value = '';
+            document.getElementById('fullName').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('role').value = 'Utilisateur';
+            document.getElementById('isActive').checked = true;
+            document.getElementById('password').value = '';
+            document.getElementById('modalTitle').innerText = 'Ajouter un utilisateur';
+            document.getElementById('modalSubtitle').innerText = 'Créer un nouveau compte';
+            document.getElementById('modalIcon').className = 'fas fa-user-plus';
+            document.getElementById('changePasswordWrapper').style.display = 'none';
+            document.getElementById('password').disabled = false;
+            document.getElementById('passwordHint').innerText = '';
+            document.getElementById('userModal').classList.add('active');
+            document.getElementById('statusLabel').innerText = 'Actif';
+            setTimeout(() => document.getElementById('username').focus(), 200);
+        }
+
+        function editUser(id) {
+            fetch('@Url.Action("GetUser", "Settings")?id=' + id)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        var u = data.user;
+                        document.getElementById('userId').value = u.id;
+                        document.getElementById('username').value = u.username || '';
+                        document.getElementById('fullName').value = u.fullName || '';
+                        document.getElementById('email').value = u.email || '';
+                        document.getElementById('phone').value = u.phone || '';
+                        document.getElementById('role').value = u.role || 'Utilisateur';
+                        document.getElementById('isActive').checked = u.isActive;
+                        document.getElementById('password').value = '';
+                        document.getElementById('password').disabled = true;
+                        document.getElementById('changePassword').checked = false;
+                        document.getElementById('modalTitle').innerText = 'Modifier l\'utilisateur';
+                        document.getElementById('modalSubtitle').innerText = u.username;
+                        document.getElementById('modalIcon').className = 'fas fa-user-edit';
+                        document.getElementById('changePasswordWrapper').style.display = 'block';
+                        document.getElementById('passwordHint').innerText = '(cocher la case pour changer)';
+                        document.getElementById('statusLabel').innerText = u.isActive ? 'Actif' : 'Inactif';
+                        document.getElementById('userModal').classList.add('active');
+                    }
+                });
+        }
+
+        function togglePasswordField() {
+            var checked = document.getElementById('changePassword').checked;
+            document.getElementById('password').disabled = !checked;
+            if (checked) document.getElementById('password').focus();
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+
+        function saveUser() {
+            var id = document.getElementById('userId').value;
+            var changePassword = id != '0' ? document.getElementById('changePassword').checked : false;
+
+            var data = new URLSearchParams();
+            data.append('Id', id);
+            data.append('Username', document.getElementById('username').value);
+            data.append('Password', document.getElementById('password').value);
+            data.append('FullName', document.getElementById('fullName').value);
+            data.append('Email', document.getElementById('email').value);
+            data.append('Phone', document.getElementById('phone').value);
+            data.append('Role', document.getElementById('role').value);
+            data.append('IsActive', document.getElementById('isActive').checked);
+            data.append('changePassword', changePassword);
+
+            fetch('@Url.Action("SaveUser", "Settings")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: data
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        showToast('Succès', res.message, 'success');
+                        closeUserModal();
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast('Erreur', res.message, 'error');
+                    }
+                });
+        }
+
+        function toggleUserStatus(id) {
+            if (!confirm('Voulez-vous changer le statut de cet utilisateur?')) return;
+
+            fetch('@Url.Action("ToggleUserStatus", "Settings")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'id=' + id
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        showToast('Succès', res.message, 'success');
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        showToast('Erreur', res.message, 'error');
+                    }
+                });
+        }
+
+        function deleteUser(id, username) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer l\'utilisateur "' + username + '" ?\n\nCette action est irréversible.')) return;
+
+            fetch('@Url.Action("DeleteUser", "Settings")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'id=' + id
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        showToast('Succès', res.message, 'success');
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        showToast('Erreur', res.message, 'error');
+                    }
+                });
+        }
+
+        function filterUsers() {
+            var query = document.getElementById('userSearch').value.toLowerCase();
+            var cards = document.querySelectorAll('.user-card');
+            cards.forEach(function(card) {
+                var text = card.getAttribute('data-search') || '';
+                card.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        document.getElementById('isActive').addEventListener('change', function() {
+            document.getElementById('statusLabel').innerText = this.checked ? 'Actif' : 'Inactif';
+        });
+
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) closeUserModal();
+        });
+    </script>
+}

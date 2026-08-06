@@ -1,0 +1,1908 @@
+﻿@model CosiderStock.Models.ArticlesViewModel
+@{
+    ViewBag.Title = "Liste des Articles";
+    Layout = "_DashboardLayout";
+}
+
+@section styles {
+    <style>
+        /* Élargir le main-content pour cette page */
+        .main-content {
+            padding: 15px !important;
+        }
+
+        /* ==================== HEADER COMPACT ==================== */
+      .page-header-compact {
+    background: linear-gradient(135deg, #C8102E, #e63950);
+    border-radius: 14px;
+    padding: 14px 22px;
+    color: #fff;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 6px 20px rgba(200, 16, 46, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+.page-header-compact::before {
+    content: '';
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    top: -100px;
+    right: -50px;
+}
+.ph-left, .ph-actions { position: relative; z-index: 1; }
+
+        .ph-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+    .ph-icon {
+    width: 42px; height: 42px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+        .ph-info h1 {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .ph-info p {
+            font-size: 11px;
+            opacity: 0.7;
+            margin: 2px 0 0;
+        }
+
+        .ph-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ==================== STATS COMPACTES ==================== */
+        .stock-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .stock-stat {
+            background: #fff;
+            border-radius: 11px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #f1f5f9;
+            transition: all 0.2s;
+        }
+
+            .stock-stat:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            }
+
+        .ss-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+            .ss-icon.red {
+                background: rgba(200,16,46,0.1);
+                color: #C8102E;
+            }
+
+            .ss-icon.blue {
+                background: rgba(52,152,219,0.1);
+                color: #3498db;
+            }
+
+            .ss-icon.green {
+                background: rgba(46,204,113,0.1);
+                color: #2ecc71;
+            }
+
+            .ss-icon.orange {
+                background: rgba(230,126,34,0.1);
+                color: #e67e22;
+            }
+
+        .ss-info .value {
+            font-size: 17px;
+            font-weight: 800;
+            color: #1a1a2e;
+            line-height: 1;
+        }
+
+        .ss-info .label {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        /* ==================== SELECTION BAR ==================== */
+        .selection-bar {
+            display: none;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 11px;
+            padding: 12px 20px;
+            margin-bottom: 12px;
+            color: #fff;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            animation: slideDown 0.3s ease;
+        }
+
+            .selection-bar.active {
+                display: flex;
+            }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sel-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+            .sel-info i {
+                font-size: 18px;
+            }
+
+        .sel-count {
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .sel-label {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .sel-stats {
+            display: flex;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .sel-stat-item .val {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .sel-stat-item .lbl {
+            font-size: 9px;
+            opacity: 0.85;
+            text-transform: uppercase;
+        }
+
+        .btn-clear-sel {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+            .btn-clear-sel:hover {
+                background: rgba(255,255,255,0.35);
+            }
+
+        /* ==================== FILTERS COMPACTS ==================== */
+        .filters-section {
+            background: #fff;
+            border-radius: 11px;
+            padding: 12px 18px;
+            margin-bottom: 12px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e8ecef;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            background: #fafbfc;
+            transition: all 0.2s;
+        }
+
+            .filter-input:focus {
+                outline: none;
+                border-color: #C8102E;
+                background: #fff;
+            }
+
+        select.filter-input {
+            cursor: pointer;
+        }
+
+        .btn-clear-filters, .btn-refresh {
+            padding: 8px 14px;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            background: #f5f6fa;
+            color: #666;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            height: 36px;
+            align-self: end;
+        }
+
+            .btn-clear-filters:hover {
+                background: #e8e8e8;
+            }
+
+    .btn-refresh {
+    background: #C8102E;
+    color: #fff;
+    border-color: #C8102E;
+}
+.btn-refresh:hover { background: #a80d26; }
+
+        /* ==================== TABLE - PRIORITÉ MAX ==================== */
+        .table-container {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+        }
+
+        .table-info-bar {
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f1f5f9;
+            background: #fafbfc;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .table-info-bar .showing {
+                font-size: 12px;
+                color: #64748b;
+            }
+
+                .table-info-bar .showing strong {
+                    color: #C8102E;
+                    font-weight: 700;
+                }
+
+        /* Table hauteur adaptative */
+        .table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: calc(100vh - 340px);
+            min-height: 400px;
+        }
+
+        .articles-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1400px;
+            font-size: 12px;
+        }
+
+            .articles-table thead {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+             .articles-table thead th {
+    background: linear-gradient(135deg, #C8102E, #e63950);
+    color: #fff;
+    padding: 11px 10px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 3px solid #8b0a1f;
+}
+.articles-table thead th:hover {
+    background: linear-gradient(135deg, #a80d26, #C8102E);
+}
+.articles-table thead th.sorted-asc::after,
+.articles-table thead th.sorted-desc::after {
+    color: #ffd93d !important;
+}
+.articles-table thead th.sorted-asc::after,
+.articles-table thead th.sorted-desc::after {
+    color: #fff !important;
+}
+
+                    .articles-table thead th:hover {
+                        background: linear-gradient(135deg, #16213e, #0f3460);
+                    }
+
+                    .articles-table thead th.sorted-asc::after {
+                        content: ' ▲';
+                        font-size: 9px;
+                        color: #C8102E;
+                    }
+
+                    .articles-table thead th.sorted-desc::after {
+                        content: ' ▼';
+                        font-size: 9px;
+                        color: #C8102E;
+                    }
+
+                    .articles-table thead th:first-child {
+                        width: 40px;
+                        text-align: center;
+                        cursor: default;
+                    }
+
+                    .articles-table thead th:nth-child(2) {
+                        width: 45px;
+                        text-align: center;
+                    }
+
+            .articles-table tbody tr {
+                border-bottom: 1px solid #f5f7fa;
+                transition: background 0.15s;
+            }
+
+                .articles-table tbody tr:hover {
+                    background: rgba(200,16,46,0.03);
+                }
+
+                .articles-table tbody tr.selected {
+                    background: rgba(46,204,113,0.08) !important;
+                }
+
+                .articles-table tbody tr:nth-child(even) {
+                    background: #fafbfc;
+                }
+
+                    .articles-table tbody tr:nth-child(even).selected {
+                        background: rgba(46,204,113,0.08) !important;
+                    }
+
+            .articles-table tbody td {
+                padding: 9px 10px;
+                color: #333;
+                vertical-align: middle;
+            }
+
+                .articles-table tbody td:first-child {
+                    text-align: center;
+                }
+
+                .articles-table tbody td:nth-child(2) {
+                    text-align: center;
+                    font-size: 10px;
+                    color: #94a3b8;
+                }
+
+        .row-checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: #C8102E;
+            cursor: pointer;
+        }
+
+ .ref-cell {
+    font-weight: 700;
+    color: #C8102E;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+        .intitule-cell {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .famille-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(52,152,219,0.1);
+            color: #3498db;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .unite-badge {
+            display: inline-block;
+            padding: 2px 7px;
+            background: #f1f5f9;
+            color: #64748b;
+            border-radius: 7px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .money-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: #1a1a2e;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+            .money-cell.highlight { color: #C8102E; }
+
+
+        .qty-cell {
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .qty-zero {
+            color: #e74c3c;
+        }
+
+        .qty-positive {
+            color: #27ae60;
+        }
+
+        .date-cell {
+            font-size: 11px;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        /* Totaux ligne */
+      .total-row {
+    background: linear-gradient(135deg, #C8102E, #e63950) !important;
+    color: #fff !important;
+}
+.total-row td {
+    padding: 12px 10px !important;
+    color: #fff !important;
+    font-weight: 800 !important;
+    font-size: 13px !important;
+    border-top: 3px solid #8b0a1f !important;
+}
+
+        /* ==================== PAGINATION ==================== */
+        .pagination-bar {
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #f1f5f9;
+            background: #fafbfc;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pagination-info {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .page-size-select {
+            padding: 6px 10px;
+            border: 1px solid #e8ecef;
+            border-radius: 7px;
+            font-size: 11px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .page-btn {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 8px;
+            border: 1px solid #e8ecef;
+            background: #fff;
+            border-radius: 7px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+            .page-btn:hover:not(:disabled) {
+                background: #C8102E;
+                color: #fff;
+                border-color: #C8102E;
+            }
+
+            .page-btn.active {
+                background: linear-gradient(135deg, #C8102E, #e63950);
+                color: #fff;
+                border-color: #C8102E;
+            }
+
+            .page-btn:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+
+        /* ==================== BUTTONS ==================== */
+        .btn-action {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 11px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, #C8102E, #e63950);
+            color: #fff;
+        }
+
+            .btn-red:hover {
+                transform: translateY(-2px);
+            }
+
+        .btn-green {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: #fff;
+        }
+
+            .btn-green:hover {
+                transform: translateY(-2px);
+            }
+
+        .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+            .btn-outline:hover {
+                background: rgba(255,255,255,0.1);
+            }
+
+        /* ==================== LOADER ==================== */
+        .loader-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(2px);
+        }
+
+            .loader-overlay.active {
+                display: flex;
+            }
+
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #C8102E;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ==================== ERROR STATE ==================== */
+        .error-state {
+            background: #fff5f5;
+            border: 2px solid #fecaca;
+            border-radius: 14px;
+            padding: 30px;
+            text-align: center;
+        }
+
+            .error-state i {
+                font-size: 50px;
+                color: #e74c3c;
+                margin-bottom: 15px;
+            }
+
+            .error-state h3 {
+                font-size: 18px;
+                color: #c0392b;
+                margin-bottom: 8px;
+            }
+
+            .error-state p {
+                font-size: 13px;
+                color: #e74c3c;
+            }
+
+        @@media (max-width: 992px) {
+            .filters-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stock-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* ==================== ZR DÉTAILS ==================== */
+.btn-details {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(52,152,219,0.25);
+}
+.btn-details:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(52,152,219,0.4);
+}
+
+/* ==================== MODAL DÉTAILS ==================== */
+.modal-details-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 9998;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    padding: 20px;
+}
+.modal-details-overlay.active {
+    display: flex;
+    animation: fadeIn 0.3s;
+}
+@@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-details {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+}
+@@keyframes modalSlideIn {
+    from { transform: translateY(-30px) scale(0.95); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.modal-details-header {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    padding: 18px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.mdh-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 700;
+}
+.mdh-title i {
+    font-size: 18px;
+}
+.mdh-ref-badge {
+    background: rgba(255,255,255,0.9);
+    color: #1a1a2e;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    margin-left: 10px;
+}
+.modal-details-close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+.modal-details-close:hover {
+    background: rgba(255,255,255,0.3);
+    transform: rotate(90deg);
+}
+
+/* Tabs */
+.modal-details-tabs {
+    display: flex;
+    gap: 10px;
+    padding: 20px 25px 0;
+    background: #f8fafc;
+    border-bottom: 1px solid #e8ecef;
+    justify-content: center;
+}
+.md-tab {
+    padding: 10px 22px;
+    background: #fff;
+    border: 2px solid #e8ecef;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+.md-tab:hover {
+    border-color: #3498db;
+    color: #3498db;
+}
+.md-tab.active {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    border-color: #3498db;
+    box-shadow: 0 5px 15px rgba(52,152,219,0.3);
+}
+
+/* Body */
+.modal-details-body {
+    padding: 25px 30px;
+    overflow-y: auto;
+    flex: 1;
+    background: #fafbfc;
+}
+
+.md-tab-content { display: none; }
+.md-tab-content.active {
+    display: block;
+    animation: fadeInUp 0.3s;
+}
+@@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form Grid */
+.md-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.md-form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.md-form-row.four { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.md-field {
+    background: #fff;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 2px solid #e8ecef;
+    transition: all 0.2s;
+}
+.md-field.readonly { background: #f5f6fa; }
+.md-field label {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 5px;
+    letter-spacing: 0.3px;
+}
+.md-field .value {
+    font-size: 14px;
+    color: #1a1a2e;
+    font-weight: 600;
+    word-break: break-word;
+}
+.md-field .value.money {
+    font-family: 'Courier New', monospace;
+    color: #1a1a2e;
+    font-weight: 700;
+    font-size: 15px;
+}
+.md-field .value.empty {
+    color: #cbd5e1;
+    font-style: italic;
+    font-weight: 400;
+}
+
+/* Highlighted Cards (Stock & Prix) */
+.md-highlight {
+    background: #fff;
+    padding: 18px 20px;
+    border-radius: 12px;
+    border: 2px solid #e8ecef;
+    border-left-width: 4px;
+    transition: all 0.3s;
+}
+.md-highlight.green { border-left-color: #2ecc71; }
+.md-highlight.blue { border-left-color: #3498db; }
+.md-highlight.red { border-left-color: #C8102E; }
+.md-highlight.orange { border-left-color: #f39c12; }
+
+.md-highlight label {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+.md-highlight.green label { color: #27ae60; }
+.md-highlight.blue label { color: #2980b9; }
+.md-highlight.red label { color: #C8102E; }
+.md-highlight.orange label { color: #d68910; }
+
+.md-highlight .big-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a1a2e;
+    line-height: 1;
+    font-family: 'Courier New', monospace;
+}
+
+/* Stats Section */
+.md-stats-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    border: 2px solid #e8ecef;
+    margin-bottom: 15px;
+}
+.md-stats-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.md-stats-section-title i {
+    color: #3498db;
+    font-size: 13px;
+}
+
+.md-stat-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+.md-stat-line .label {
+    color: #64748b;
+    font-weight: 500;
+}
+.md-stat-line .value {
+    color: #1a1a2e;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+.md-stat-line.entree .value { color: #27ae60; }
+.md-stat-line.sortie .value { color: #C8102E; }
+
+/* Valeur Résiduelle Big Card */
+.md-value-residuelle {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    padding: 18px 22px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(52,152,219,0.25);
+    height: 100%;
+}
+.md-value-residuelle .label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    opacity: 0.95;
+    text-transform: uppercase;
+}
+.md-value-residuelle .amount {
+    background: #fff;
+    color: #1a1a2e;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 800;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.md-value-residuelle .amount .currency {
+    background: #3498db;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 10px;
+}
+
+/* Amount Cards */
+.md-amounts-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+.md-amount-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 2px solid #e8ecef;
+    border-bottom-width: 4px;
+    transition: all 0.3s;
+}
+.md-amount-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+.md-amount-card.blue { border-bottom-color: #3498db; }
+.md-amount-card.green { border-bottom-color: #2ecc71; }
+.md-amount-card.cyan { border-bottom-color: #1abc9c; }
+.md-amount-card.orange { border-bottom-color: #f39c12; }
+
+.md-amount-card .label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.md-amount-card .value {
+    font-size: 16px;
+    font-weight: 800;
+    font-family: 'Courier New', monospace;
+}
+.md-amount-card.blue .value { color: #2980b9; }
+.md-amount-card.green .value { color: #27ae60; }
+.md-amount-card.cyan .value { color: #16a085; }
+.md-amount-card.orange .value { color: #d68910; }
+
+/* Footer */
+.modal-details-footer {
+    padding: 15px 25px;
+    background: #f8fafc;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #e8ecef;
+}
+
+.btn-close-modal {
+    padding: 10px 22px;
+    background: #94a3b8;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+.btn-close-modal:hover { background: #64748b; }
+
+@@media (max-width: 768px) {
+    .md-form-row { grid-template-columns: 1fr; }
+    .md-form-row.three, .md-form-row.four { grid-template-columns: 1fr; }
+    .md-amounts-grid { grid-template-columns: 1fr 1fr; }
+    .modal-details-tabs { flex-direction: column; }
+}
+    </style>
+}
+
+<!-- HEADER COMPACT -->
+<div class="page-header-compact animate__animated animate__fadeInDown">
+    <div class="ph-left">
+        <div class="ph-icon"><i class="fas fa-boxes-stacked"></i></div>
+        <div class="ph-info">
+            <h1>Liste des Articles</h1>
+            <p>ST_STOCK.DBF — Exercice @ViewBag.SelectedYear</p>
+        </div>
+    </div>
+    <div class="ph-actions">
+        <button class="btn-action btn-green" onclick="exportExcel()">
+            <i class="fas fa-file-excel"></i> Export Excel
+        </button>
+        <a href="@Url.Action("Refresh", "Stock")" class="btn-action btn-outline">
+            <i class="fas fa-sync"></i> Actualiser
+        </a>
+        <a href="@Url.Action("Database", "Settings")" class="btn-action btn-outline">
+            <i class="fas fa-cog"></i> Exercice
+        </a>
+    </div>
+</div>
+
+<!-- ==================== MODAL DÉTAILS ==================== -->
+<div class="modal-details-overlay" id="detailsModal" onclick="closeDetailsIfOverlay(event)">
+    <div class="modal-details" onclick="event.stopPropagation()">
+        <div class="modal-details-header">
+            <div class="mdh-title">
+                <i class="fas fa-info-circle"></i>
+                <span>Détails de l'Article</span>
+                <span class="mdh-ref-badge" id="mdRef">—</span>
+            </div>
+            <button class="modal-details-close" onclick="closeDetailsModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="modal-details-tabs">
+            <button class="md-tab active" data-tab="identification" onclick="switchTab('identification')">
+                <i class="fas fa-info-circle"></i> Identification
+            </button>
+            <button class="md-tab" data-tab="stock" onclick="switchTab('stock')">
+                <i class="fas fa-boxes-stacked"></i> Stock & Prix
+            </button>
+            <button class="md-tab" data-tab="stats" onclick="switchTab('stats')">
+                <i class="fas fa-chart-line"></i> Statistiques
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-details-body">
+            <!-- ========== TAB 1: IDENTIFICATION ========== -->
+            <div class="md-tab-content active" id="tab-identification">
+                <div class="md-form-row">
+                    <div class="md-field readonly">
+                        <label><i class="fas fa-key"></i> Référence (Non modifiable)</label>
+                        <div class="value" id="mdIdRef">—</div>
+                    </div>
+                    <div class="md-field">
+                        <label><i class="fas fa-tag"></i> Intitulé Principal</label>
+                        <div class="value" id="mdIdIntitule">—</div>
+                    </div>
+                </div>
+                <div class="md-form-row">
+                    <div class="md-field">
+                        <label><i class="fas fa-tag"></i> Intitulé 2</label>
+                        <div class="value" id="mdIdIntitule2">—</div>
+                    </div>
+                    <div class="md-field">
+                        <label><i class="fas fa-tag"></i> Intitulé 3</label>
+                        <div class="value" id="mdIdIntitule3">—</div>
+                    </div>
+                </div>
+                <div class="md-form-row three">
+                    <div class="md-field">
+                        <label><i class="fas fa-folder"></i> Famille</label>
+                        <div class="value" id="mdIdFamille">—</div>
+                    </div>
+                    <div class="md-field">
+                        <label><i class="fas fa-warehouse"></i> Lieu de Stockage</label>
+                        <div class="value" id="mdIdLieu">—</div>
+                    </div>
+                    <div class="md-field">
+                        <label><i class="fas fa-box"></i> Casier</label>
+                        <div class="value" id="mdIdCasier">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB 2: STOCK & PRIX ========== -->
+            <div class="md-tab-content" id="tab-stock">
+                <div class="md-form-row four" style="margin-bottom:18px;">
+                    <div class="md-highlight green">
+                        <label>Quantité Actuelle</label>
+                        <div class="big-value" id="mdStkQte">0</div>
+                    </div>
+                    <div class="md-highlight blue">
+                        <label>PAMP</label>
+                        <div class="big-value" id="mdStkPamp">0</div>
+                    </div>
+                    <div class="md-field readonly">
+                        <label><i class="fas fa-money-bill"></i> Prix Achat</label>
+                        <div class="value money" id="mdStkPrixAchat">0</div>
+                    </div>
+                    <div class="md-field readonly">
+                        <label><i class="fas fa-calculator"></i> Valeur Initiale</label>
+                        <div class="value money" id="mdStkValeurIni">0</div>
+                    </div>
+                </div>
+                <div class="md-form-row four">
+                    <div class="md-field">
+                        <label><i class="fas fa-warehouse"></i> Stock Initial</label>
+                        <div class="value money" id="mdStkStockIni">0</div>
+                    </div>
+                    <div class="md-highlight red" style="padding:12px 15px;">
+                        <label>Stock Max</label>
+                        <div class="big-value" style="font-size:16px;" id="mdStkMax">0</div>
+                    </div>
+                    <div class="md-highlight orange" style="padding:12px 15px;">
+                        <label>Stock Sécurité</label>
+                        <div class="big-value" style="font-size:16px;" id="mdStkSecurite">0</div>
+                    </div>
+                    <div class="md-field">
+                        <label><i class="fas fa-calendar"></i> Dernière MAJ</label>
+                        <div class="value" id="mdStkDateMaj">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB 3: STATISTIQUES ========== -->
+            <div class="md-tab-content" id="tab-stats">
+                <div class="md-form-row" style="grid-template-columns: 1fr 1fr 1.2fr;">
+                    <!-- Total Mouvements -->
+                    <div class="md-stats-section">
+                        <div class="md-stats-section-title">
+                            <i class="fas fa-exchange-alt"></i>
+                            Total Mouvements (Nombre)
+                        </div>
+                        <div class="md-stat-line entree">
+                            <span class="label">Entrées</span>
+                            <span class="value" id="mdStTotEnt">0</span>
+                        </div>
+                        <div class="md-stat-line sortie">
+                            <span class="label">Sorties</span>
+                            <span class="value" id="mdStTotSor">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Quantités Cumulées -->
+                    <div class="md-stats-section">
+                        <div class="md-stats-section-title">
+                            <i class="fas fa-boxes-stacked"></i>
+                            Quantités Cumulées
+                        </div>
+                        <div class="md-stat-line entree">
+                            <span class="label">Qte Ent.</span>
+                            <span class="value" id="mdStQteEnt">0</span>
+                        </div>
+                        <div class="md-stat-line" style="color:#f39c12;">
+                            <span class="label">Qte Sor.</span>
+                            <span class="value" style="color:#f39c12;" id="mdStQteSor">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Valeur Résiduelle -->
+                    <div class="md-value-residuelle">
+                        <div class="label">
+                            <i class="fas fa-database"></i>
+                            Valeur Résiduelle (TEMPVAL)
+                        </div>
+                        <div class="amount">
+                            <span id="mdStValResiduelle">0,00</span>
+                            <span class="currency">DA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md-amounts-grid" style="margin-top:15px;">
+                    <div class="md-amount-card blue">
+                        <div class="label">Achat HT</div>
+                        <div class="value" id="mdStAchat">0,00</div>
+                    </div>
+                    <div class="md-amount-card green">
+                        <div class="label">Conso HT</div>
+                        <div class="value" id="mdStConso">0,00</div>
+                    </div>
+                    <div class="md-amount-card cyan">
+                        <div class="label">Cession HT</div>
+                        <div class="value" id="mdStCession">0,00</div>
+                    </div>
+                    <div class="md-amount-card orange">
+                        <div class="label">Reinté. HT</div>
+                        <div class="value" id="mdStReinte">0,00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-details-footer">
+            <button class="btn-close-modal" onclick="closeDetailsModal()">
+                <i class="fas fa-times"></i> Fermer
+            </button>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="error-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h3>Erreur</h3>
+        <p>@Model.ErrorMessage</p>
+    </div>
+}
+else
+{
+    <!-- STATS -->
+    <div class="stock-stats animate__animated animate__fadeIn">
+        <div class="stock-stat">
+            <div class="ss-icon red"><i class="fas fa-cubes"></i></div>
+            <div class="ss-info">
+                <div class="value">@Model.TotalArticles.ToString("N0")</div>
+                <div class="label">Total articles</div>
+            </div>
+        </div>
+        <div class="stock-stat">
+            <div class="ss-icon blue"><i class="fas fa-coins"></i></div>
+            <div class="ss-info">
+                <div class="value">@Model.TotalMontant.ToString("N2")</div>
+                <div class="label">Valeur totale (DA)</div>
+            </div>
+        </div>
+        <div class="stock-stat">
+            <div class="ss-icon green"><i class="fas fa-layer-group"></i></div>
+            <div class="ss-info">
+                <div class="value">@Model.Familles.Count</div>
+                <div class="label">Familles</div>
+            </div>
+        </div>
+        <div class="stock-stat">
+            <div class="ss-icon orange"><i class="fas fa-warehouse"></i></div>
+            <div class="ss-info">
+                <div class="value">@Model.TotalValeurIni.ToString("N2")</div>
+                <div class="label">Valeur initiale (DA)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SELECTION BAR -->
+    <div class="selection-bar" id="selectionBar">
+        <div class="sel-info">
+            <i class="fas fa-check-double"></i>
+            <div>
+                <div class="sel-count" id="selCount">0</div>
+                <div class="sel-label">articles sélectionnés</div>
+            </div>
+        </div>
+        <div class="sel-stats">
+            <div class="sel-stat-item">
+                <div class="val" id="selQte">0</div>
+                <div class="lbl">Quantité</div>
+            </div>
+            <div class="sel-stat-item">
+                <div class="val" id="selMontant">0.00</div>
+                <div class="lbl">Montant (DA)</div>
+            </div>
+            <div class="sel-stat-item">
+                <div class="val" id="selValeurIni">0.00</div>
+                <div class="lbl">Valeur initiale</div>
+            </div>
+        </div>
+        <button class="btn-clear-sel" onclick="clearSelection()">
+            <i class="fas fa-times"></i> Annuler
+        </button>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-section">
+        <div class="filters-row">
+            <div class="filter-group">
+                <label>🔍 Recherche globale</label>
+                <input type="text" class="filter-input" id="searchGlobal" placeholder="REF, Intitulé, Casier, Famille..." oninput="debouncedFilter()">
+            </div>
+            <div class="filter-group">
+                <label>📁 Famille</label>
+                <select class="filter-input" id="filterFamille" onchange="loadPage(1)">
+                    <option value="">Toutes</option>
+                    @foreach (var f in Model.Familles)
+                    {
+                        <option value="@f">@f</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>📏 Unité</label>
+                <select class="filter-input" id="filterUnite" onchange="loadPage(1)">
+                    <option value="">Toutes</option>
+                    @foreach (var u in Model.Unites)
+                    {
+                        <option value="@u">@u</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>📦 Stock</label>
+                <select class="filter-input" id="filterStock" onchange="loadPage(1)">
+                    <option value="">Tous</option>
+                    <option value="positive">Qté > 0</option>
+                    <option value="zero">Qté = 0</option>
+                    <option value="montant">Montant > 0</option>
+                </select>
+            </div>
+            <button class="btn-clear-filters" onclick="clearFilters()">
+                <i class="fas fa-rotate-left"></i> Réinit.
+            </button>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-container" style="position:relative;">
+        <div class="loader-overlay" id="loaderOverlay">
+            <div class="loader-spinner"></div>
+        </div>
+
+        <div class="table-info-bar">
+            <div class="showing" id="showingInfo">
+                Chargement...
+            </div>
+            <label style="font-size:11px; color:#64748b; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="row-checkbox">
+                Tout sélectionner (page)
+            </label>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="articles-table" id="articlesTable">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>N°</th>
+                        <th data-sort="ref">REF</th>
+                        <th data-sort="intitule">INTITULÉ</th>
+                        <th>INTITULÉ 2</th>
+                        <th>INTITULÉ 3</th>
+                        <th data-sort="famille">FAMILLE</th>
+                        <th data-sort="qte">QTÉ</th>
+                        <th>UNITÉ</th>
+                        <th data-sort="pamp">PAMP (DA)</th>
+                        <th data-sort="montant">MONTANT (DA)</th>
+                        <th data-sort="stockini">STOCK INI</th>
+                        <th data-sort="valeurini">VALEUR INI (DA)</th>
+                        <th data-sort="casier">CASIER</th>
+                        <th data-sort="datemaj">DATE MAJ</th>
+                        <th style="width:60px; cursor:default; text-align:center;">ACTION</th>
+                    </tr>
+                </thead>
+            @*     <thead>
+                    <tr>
+                        <th></th>
+                        <th>N°</th>
+                        <th data-sort="ref">REF</th>
+                        <th data-sort="intitule">INTITULÉ</th>
+                        <th>INTITULÉ 2</th>
+                        <th>INTITULÉ 3</th>
+                        <th data-sort="famille">FAMILLE</th>
+                        <th data-sort="qte">QTÉ</th>
+                        <th>UNITÉ</th>
+                        <th data-sort="pamp">PAMP (DA)</th>
+                        <th data-sort="montant">MONTANT (DA)</th>
+                        <th data-sort="stockini">STOCK INI</th>
+                        <th data-sort="valeurini">VALEUR INI (DA)</th>
+                        <th data-sort="casier">CASIER</th>
+                        <th data-sort="datemaj">DATE MAJ</th>
+                    </tr>
+                </thead> *@
+                <tbody id="tableBody"></tbody>
+                <tfoot>
+    <tr class="total-row">
+        <td colspan="7" style="text-align:right; color:#fff !important;">TOTAL FILTRÉ →</td>
+        <td class="qty-cell" id="totalQte" style="color:#a8e6cf !important;">0.00</td>
+        <td></td>
+        <td></td>
+        <td class="money-cell" id="totalMontant" style="color:#ffd93d !important;">0.00</td>
+        <td class="qty-cell" id="totalStockIni" style="color:#a8e6cf !important;">0.00</td>
+        <td class="money-cell" id="totalValeurIni" style="color:#ffd93d !important;">0.00</td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+</tfoot>
+            </table>
+        </div>
+
+        <div class="pagination-bar">
+            <div class="pagination-info" id="paginationInfo">—</div>
+            <div class="pagination-controls">
+                <label style="font-size:11px; color:#64748b; margin-right:8px;">Afficher:</label>
+                <select class="page-size-select" id="pageSize" onchange="loadPage(1)">
+                    <option value="50">50</option>
+                    <option value="100" selected>100</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                </select>
+                <div id="pageButtons" style="display:flex; gap:4px; margin-left:10px;"></div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@section scripts {
+    <script>
+        // ==================== ÉTAT ====================
+        var currentSort = { by: '', dir: 'asc' };
+        var currentPage = 1;
+        var currentData = [];
+        var selectedIds = new Set(); // Sélection persistante entre pages
+        var debounceTimer;
+
+        // ==================== DEBOUNCE POUR RECHERCHE ====================
+        function debouncedFilter() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function() {
+                loadPage(1);
+            }, 400);
+        }
+
+        // ==================== CHARGEMENT AJAX ====================
+        function loadPage(page) {
+            currentPage = page;
+            var loader = document.getElementById('loaderOverlay');
+            loader.classList.add('active');
+
+            var formData = new URLSearchParams();
+            formData.append('page', page);
+            formData.append('pageSize', document.getElementById('pageSize').value);
+            formData.append('search', document.getElementById('searchGlobal').value);
+            formData.append('famille', document.getElementById('filterFamille').value);
+            formData.append('unite', document.getElementById('filterUnite').value);
+            formData.append('stock', document.getElementById('filterStock').value);
+            formData.append('sortBy', currentSort.by);
+            formData.append('sortDir', currentSort.dir);
+
+            fetch('@Url.Action("GetArticlesPage", "Stock")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        currentData = data.data;
+                        renderTable(data.data);
+                        renderPagination(data.pagination);
+                        renderTotals(data.totals);
+                        updateShowingInfo(data.pagination);
+                        updateSelectAllCheckbox();
+                    }
+                    loader.classList.remove('active');
+                })
+                .catch(err => {
+                    console.error(err);
+                    loader.classList.remove('active');
+                });
+        }
+
+        // ==================== RENDU TABLE ====================
+        // function renderTable(data) {
+        //     var tbody = document.getElementById('tableBody');
+        //     var html = '';
+        //     data.forEach(function(a) {
+        //         var isSel = selectedIds.has(a.rowIndex);
+        //         var qteClass = a.qte > 0 ? 'qty-positive' : 'qty-zero';
+        //         html += '<tr class="' + (isSel ? 'selected' : '') + '" data-id="' + a.rowIndex + '">' +
+        //             '<td><input type="checkbox" class="row-checkbox row-select" data-id="' + a.rowIndex + '" data-qte="' + a.qte + '" data-montant="' + a.montant + '" data-valeurini="' + a.valeurIni + '"' + (isSel ? ' checked' : '') + ' onchange="toggleRow(this)"></td>' +
+        //             '<td>' + a.rowIndex + '</td>' +
+        //             '<td class="ref-cell">' + escapeHtml(a.reference) + '</td>' +
+        //             '<td class="intitule-cell" title="' + escapeHtml(a.intitule) + '">' + escapeHtml(a.intitule) + '</td>' +
+        //             '<td class="intitule-cell" title="' + escapeHtml(a.intitule2) + '">' + escapeHtml(a.intitule2) + '</td>' +
+        //             '<td class="intitule-cell" title="' + escapeHtml(a.intitule3) + '">' + escapeHtml(a.intitule3) + '</td>' +
+        //             '<td>' + (a.famille ? '<span class="famille-badge">' + escapeHtml(a.famille) + '</span>' : '') + '</td>' +
+        //             '<td class="qty-cell ' + qteClass + '">' + a.qteFmt + '</td>' +
+        //             '<td>' + (a.unite ? '<span class="unite-badge">' + escapeHtml(a.unite) + '</span>' : '') + '</td>' +
+        //             '<td class="money-cell">' + a.pampFmt + '</td>' +
+        //             '<td class="money-cell highlight">' + a.montantFmt + '</td>' +
+        //             '<td class="qty-cell">' + a.stockIniFmt + '</td>' +
+        //             '<td class="money-cell">' + a.valeurIniFmt + '</td>' +
+        //             '<td>' + escapeHtml(a.casier) + '</td>' +
+        //             '<td class="date-cell">' + a.dateMaj + '</td>' +
+        //             '</tr>';
+        //     });
+        //     tbody.innerHTML = html;
+        // }
+
+        function renderTable(data) {
+    var tbody = document.getElementById('tableBody');
+    var html = '';
+    data.forEach(function (a) {
+        var isSel = selectedIds.has(a.rowIndex);
+        var qteClass = a.qte > 0 ? 'qty-positive' : 'qty-zero';
+        html += '<tr class="' + (isSel ? 'selected' : '') + '" data-id="' + a.rowIndex + '">' +
+            '<td><input type="checkbox" class="row-checkbox row-select" data-id="' + a.rowIndex + '" data-qte="' + a.qte + '" data-montant="' + a.montant + '" data-valeurini="' + a.valeurIni + '"' + (isSel ? ' checked' : '') + ' onchange="toggleRow(this)"></td>' +
+            '<td>' + a.rowIndex + '</td>' +
+            '<td class="ref-cell">' + escapeHtml(a.reference) + '</td>' +
+            '<td class="intitule-cell" title="' + escapeHtml(a.intitule) + '">' + escapeHtml(a.intitule) + '</td>' +
+            '<td class="intitule-cell" title="' + escapeHtml(a.intitule2) + '">' + escapeHtml(a.intitule2) + '</td>' +
+            '<td class="intitule-cell" title="' + escapeHtml(a.intitule3) + '">' + escapeHtml(a.intitule3) + '</td>' +
+            '<td>' + (a.famille ? '<span class="famille-badge">' + escapeHtml(a.famille) + '</span>' : '') + '</td>' +
+            '<td class="qty-cell ' + qteClass + '">' + a.qteFmt + '</td>' +
+            '<td>' + (a.unite ? '<span class="unite-badge">' + escapeHtml(a.unite) + '</span>' : '') + '</td>' +
+            '<td class="money-cell">' + a.pampFmt + '</td>' +
+            '<td class="money-cell highlight">' + a.montantFmt + '</td>' +
+            '<td class="qty-cell">' + a.stockIniFmt + '</td>' +
+            '<td class="money-cell">' + a.valeurIniFmt + '</td>' +
+            '<td>' + escapeHtml(a.casier) + '</td>' +
+            '<td class="date-cell">' + a.dateMaj + '</td>' +
+            '<td style="text-align:center;">' +
+                '<button class="btn-details" onclick="showArticleDetails(' + a.rowIndex + ')" title="Voir détails">' +
+                    '<i class="fas fa-chart-line"></i>' +
+                '</button>' +
+            '</td>' +
+            '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+            });
+        }
+
+        // ==================== TOTAUX ====================
+        function renderTotals(t) {
+            document.getElementById('totalQte').textContent = t.qte;
+            document.getElementById('totalMontant').textContent = t.montant;
+            document.getElementById('totalStockIni').textContent = t.stockIni;
+            document.getElementById('totalValeurIni').textContent = t.valeurIni;
+        }
+
+        // ==================== PAGINATION ====================
+        function renderPagination(p) {
+            var container = document.getElementById('pageButtons');
+            var html = '';
+
+            html += '<button class="page-btn" onclick="loadPage(1)"' + (p.currentPage === 1 ? ' disabled' : '') + '><i class="fas fa-angles-left"></i></button>';
+            html += '<button class="page-btn" onclick="loadPage(' + (p.currentPage - 1) + ')"' + (p.currentPage === 1 ? ' disabled' : '') + '><i class="fas fa-angle-left"></i></button>';
+
+            var start = Math.max(1, p.currentPage - 2);
+            var end = Math.min(p.totalPages, p.currentPage + 2);
+
+            if (start > 1) html += '<span style="color:#94a3b8;">...</span>';
+            for (var i = start; i <= end; i++) {
+                html += '<button class="page-btn ' + (i === p.currentPage ? 'active' : '') + '" onclick="loadPage(' + i + ')">' + i + '</button>';
+            }
+            if (end < p.totalPages) html += '<span style="color:#94a3b8;">...</span>';
+
+            html += '<button class="page-btn" onclick="loadPage(' + (p.currentPage + 1) + ')"' + (p.currentPage >= p.totalPages ? ' disabled' : '') + '><i class="fas fa-angle-right"></i></button>';
+            html += '<button class="page-btn" onclick="loadPage(' + p.totalPages + ')"' + (p.currentPage >= p.totalPages ? ' disabled' : '') + '><i class="fas fa-angles-right"></i></button>';
+
+            container.innerHTML = html;
+
+            document.getElementById('paginationInfo').innerHTML =
+                'Page <strong>' + p.currentPage + '</strong> sur <strong>' + p.totalPages + '</strong>';
+        }
+
+        function updateShowingInfo(p) {
+            document.getElementById('showingInfo').innerHTML =
+                'Affichage de <strong>' + p.showingFrom + '</strong> à <strong>' + p.showingTo + '</strong> sur <strong>' + p.totalRecords + '</strong> articles';
+        }
+
+        // ==================== FILTRES ====================
+        function clearFilters() {
+            document.getElementById('searchGlobal').value = '';
+            document.getElementById('filterFamille').value = '';
+            document.getElementById('filterUnite').value = '';
+            document.getElementById('filterStock').value = '';
+            loadPage(1);
+        }
+
+        // ==================== TRI ====================
+        document.querySelectorAll('.articles-table thead th[data-sort]').forEach(function(th) {
+            th.addEventListener('click', function() {
+                var sortKey = this.getAttribute('data-sort');
+                if (currentSort.by === sortKey) {
+                    currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.by = sortKey;
+                    currentSort.dir = 'asc';
+                }
+                document.querySelectorAll('.articles-table thead th').forEach(function(h) {
+                    h.classList.remove('sorted-asc', 'sorted-desc');
+                });
+                this.classList.add('sorted-' + currentSort.dir);
+                loadPage(1);
+            });
+        });
+
+        // ==================== SÉLECTION ====================
+        function toggleRow(cb) {
+            var id = parseInt(cb.getAttribute('data-id'));
+            var row = cb.closest('tr');
+            if (cb.checked) {
+                selectedIds.add(id);
+                row.classList.add('selected');
+            } else {
+                selectedIds.delete(id);
+                row.classList.remove('selected');
+            }
+            updateSelection();
+        }
+
+        function toggleSelectAll() {
+            var checked = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.row-select').forEach(function(cb) {
+                cb.checked = checked;
+                var id = parseInt(cb.getAttribute('data-id'));
+                if (checked) selectedIds.add(id);
+                else selectedIds.delete(id);
+                cb.closest('tr').classList.toggle('selected', checked);
+            });
+            updateSelection();
+        }
+
+        function updateSelectAllCheckbox() {
+            var allChecks = document.querySelectorAll('.row-select');
+            var allChecked = allChecks.length > 0 && Array.from(allChecks).every(c => c.checked);
+            document.getElementById('selectAll').checked = allChecked;
+        }
+
+        function updateSelection() {
+            var bar = document.getElementById('selectionBar');
+            var total = selectedIds.size;
+
+            if (total > 0) {
+                // Calculer les totaux depuis les checkboxes actuellement visibles + garder trace
+                var sumQte = 0, sumMontant = 0, sumValeurIni = 0;
+
+                // Chercher dans currentData toutes les données sélectionnées
+                currentData.forEach(function(a) {
+                    if (selectedIds.has(a.rowIndex)) {
+                        sumQte += parseFloat(a.qte) || 0;
+                        sumMontant += parseFloat(a.montant) || 0;
+                        sumValeurIni += parseFloat(a.valeurIni) || 0;
+                    }
+                });
+
+                document.getElementById('selCount').textContent = total;
+                document.getElementById('selQte').textContent = sumQte.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('selMontant').textContent = sumMontant.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('selValeurIni').textContent = sumValeurIni.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                bar.classList.add('active');
+            } else {
+                bar.classList.remove('active');
+            }
+        }
+
+        function clearSelection() {
+            selectedIds.clear();
+            document.querySelectorAll('.row-select').forEach(function(c) {
+                c.checked = false;
+                c.closest('tr').classList.remove('selected');
+            });
+            document.getElementById('selectAll').checked = false;
+            updateSelection();
+        }
+
+        // ==================== EXPORT ====================
+        function exportExcel() {
+            var params = new URLSearchParams();
+            params.append('search', document.getElementById('searchGlobal').value);
+            params.append('famille', document.getElementById('filterFamille').value);
+            params.append('unite', document.getElementById('filterUnite').value);
+            params.append('stock', document.getElementById('filterStock').value);
+            window.location.href = '@Url.Action("ExportExcel", "Stock")?' + params.toString();
+        }
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPage(1);
+        });
+
+        // ==================== MODAL DÉTAILS ====================
+function showArticleDetails(rowIndex) {
+    var loader = document.getElementById('loaderOverlay');
+    loader.classList.add('active');
+
+    fetch('@Url.Action("GetArticleDetails", "Stock")?rowIndex=' + rowIndex)
+        .then(r => r.json())
+        .then(data => {
+            loader.classList.remove('active');
+            if (!data.success) {
+                alert('Erreur: ' + (data.message || 'Impossible de charger les détails'));
+                return;
+            }
+            fillArticleDetails(data.article);
+            document.getElementById('detailsModal').classList.add('active');
+            switchTab('identification');
+        })
+        .catch(err => {
+            loader.classList.remove('active');
+            console.error(err);
+            alert('Erreur de chargement');
+        });
+}
+
+function fillArticleDetails(a) {
+    // Header
+    document.getElementById('mdRef').textContent = a.reference || '—';
+
+    // Tab 1: Identification
+    setValue('mdIdRef', a.reference);
+    setValue('mdIdIntitule', a.intitule);
+    setValue('mdIdIntitule2', a.intitule2);
+    setValue('mdIdIntitule3', a.intitule3);
+    setValue('mdIdFamille', a.famille);
+    setValue('mdIdLieu', a.lieuStockage);
+    setValue('mdIdCasier', a.casier);
+
+    // Tab 2: Stock & Prix
+    setValue('mdStkQte', a.qte);
+    setValue('mdStkPamp', a.pamp);
+    setValue('mdStkPrixAchat', a.prixAchat);
+    setValue('mdStkValeurIni', a.valeurIni);
+    setValue('mdStkStockIni', a.stockIni);
+    setValue('mdStkMax', a.stockMax);
+    setValue('mdStkSecurite', a.stockSecurite);
+    setValue('mdStkDateMaj', a.dateMaj);
+
+    // Tab 3: Statistiques
+    setValue('mdStTotEnt', a.totalMvtEntrees);
+    setValue('mdStTotSor', a.totalMvtSorties);
+    setValue('mdStQteEnt', a.qteEntrees);
+    setValue('mdStQteSor', a.qteSorties);
+    setValue('mdStValResiduelle', a.valeurResiduelle);
+    setValue('mdStAchat', a.achatHT);
+    setValue('mdStConso', a.consoHT);
+    setValue('mdStCession', a.cessionHT);
+    setValue('mdStReinte', a.reinteHT);
+}
+
+function setValue(id, val) {
+    var el = document.getElementById(id);
+    if (!el) return;
+
+    if (val === null || val === undefined || val === '' || val === '0' || val === '0.00') {
+        // Pour Valeur Résiduelle et champs monétaires, afficher 0,00
+        if (id === 'mdStValResiduelle' || id === 'mdStAchat' || id === 'mdStConso' ||
+            id === 'mdStCession' || id === 'mdStReinte' || id === 'mdStkPrixAchat' ||
+            id === 'mdStkValeurIni' || id === 'mdStkStockIni' || id === 'mdStkMax' ||
+            id === 'mdStkSecurite') {
+            el.textContent = val || '0,00';
+            el.classList.remove('empty');
+        }
+        else if (id === 'mdStkQte' || id === 'mdStkPamp' || id === 'mdStTotEnt' ||
+                 id === 'mdStTotSor' || id === 'mdStQteEnt' || id === 'mdStQteSor') {
+            el.textContent = val || '0';
+            el.classList.remove('empty');
+        }
+        else {
+            el.textContent = '—';
+            el.classList.add('empty');
+        }
+    } else {
+        el.textContent = val;
+        el.classList.remove('empty');
+    }
+}
+
+function switchTab(tabName) {
+    // Boutons
+    document.querySelectorAll('.md-tab').forEach(function (t) {
+        t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
+    });
+    // Contenus
+    document.querySelectorAll('.md-tab-content').forEach(function (c) {
+        c.classList.toggle('active', c.id === 'tab-' + tabName);
+    });
+}
+
+function closeDetailsModal() {
+    document.getElementById('detailsModal').classList.remove('active');
+}
+
+function closeDetailsIfOverlay(event) {
+    if (event.target === event.currentTarget) closeDetailsModal();
+}
+
+// Escape key pour fermer
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        var modal = document.getElementById('detailsModal');
+        if (modal && modal.classList.contains('active')) closeDetailsModal();
+    }
+});
+    </script>
+}

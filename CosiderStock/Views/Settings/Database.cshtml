@@ -1,0 +1,713 @@
+﻿@model CosiderStock.Models.SettingsViewModel
+@{
+    ViewBag.Title = "Base de Données";
+    Layout = "_DashboardLayout";
+}
+
+@section styles {
+    @await Html.PartialAsync("_SettingsStyles")
+    <style>
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .mini-stat {
+            background: linear-gradient(135deg, #fff, #fafbfc);
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s;
+        }
+
+            .mini-stat:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            }
+
+        .mini-stat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+            .mini-stat-icon.red {
+                background: rgba(200,16,46,0.1);
+                color: #C8102E;
+            }
+
+            .mini-stat-icon.blue {
+                background: rgba(52,152,219,0.1);
+                color: #3498db;
+            }
+
+            .mini-stat-icon.green {
+                background: rgba(46,204,113,0.1);
+                color: #2ecc71;
+            }
+
+            .mini-stat-icon.orange {
+                background: rgba(230,126,34,0.1);
+                color: #e67e22;
+            }
+
+        .mini-stat-info .value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a1a2e;
+        }
+
+        .mini-stat-info .label {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* Path Display */
+        .path-display {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            padding: 18px 25px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .path-display::before {
+                content: '';
+                position: absolute;
+                width: 200px;
+                height: 200px;
+                background: radial-gradient(circle, rgba(200,16,46,0.15) 0%, transparent 70%);
+                top: -80px;
+                right: -50px;
+            }
+
+        .path-icon {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #C8102E, #e63950);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .path-info {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+            .path-info .label {
+                font-size: 11px;
+                color: rgba(255,255,255,0.6);
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+
+            .path-info .value {
+                font-size: 16px;
+                font-weight: 700;
+                font-family: 'Courier New', monospace;
+                margin-top: 3px;
+                color: #fff;
+            }
+
+        .path-status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+            .path-status-badge.online {
+                background: rgba(46,204,113,0.2);
+                color: #2ecc71;
+            }
+
+            .path-status-badge.offline {
+                background: rgba(231,76,60,0.2);
+                color: #e74c3c;
+            }
+
+            .path-status-badge .dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                animation: pulse 2s infinite;
+            }
+
+            .path-status-badge.online .dot {
+                background: #2ecc71;
+            }
+
+            .path-status-badge.offline .dot {
+                background: #e74c3c;
+            }
+
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* Current Selection */
+        .current-selection {
+            background: linear-gradient(135deg, rgba(200,16,46,0.05), rgba(230,57,80,0.08));
+            border-left: 4px solid #C8102E;
+            padding: 18px 22px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .current-selection-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #C8102E, #e63950);
+            color: #fff;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .current-selection-info {
+            flex: 1;
+        }
+
+            .current-selection-info .label {
+                font-size: 11px;
+                color: #94a3b8;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+
+            .current-selection-info .value {
+                font-size: 18px;
+                font-weight: 700;
+                color: #C8102E;
+                margin: 3px 0;
+            }
+
+            .current-selection-info .path {
+                font-size: 11px;
+                color: #666;
+                font-family: monospace;
+            }
+
+        /* Years Grid */
+        .years-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 18px;
+        }
+
+        .year-card {
+            background: #fff;
+            border: 2px solid #f0f0f0;
+            border-radius: 16px;
+            padding: 22px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .year-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(200,16,46,0.15);
+                border-color: rgba(200,16,46,0.3);
+            }
+
+            .year-card.selected {
+                border-color: #C8102E;
+                background: linear-gradient(135deg, rgba(200,16,46,0.03), rgba(230,57,80,0.06));
+                box-shadow: 0 10px 30px rgba(200,16,46,0.15);
+            }
+
+                .year-card.selected::before {
+                    content: '\f00c';
+                    font-family: 'Font Awesome 6 Free';
+                    font-weight: 900;
+                    position: absolute;
+                    top: 12px;
+                    right: 12px;
+                    width: 28px;
+                    height: 28px;
+                    background: linear-gradient(135deg, #C8102E, #e63950);
+                    color: #fff;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 11px;
+                }
+
+        .year-card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .year-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .year-card.selected .year-icon {
+            background: linear-gradient(135deg, #C8102E, #e63950);
+            color: #fff;
+        }
+
+        .year-card:not(.selected) .year-icon {
+            background: rgba(200,16,46,0.1);
+            color: #C8102E;
+        }
+
+        .year-card.invalid .year-icon {
+            background: rgba(150,150,150,0.1);
+            color: #999;
+        }
+
+        .year-info h3 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a1a2e;
+            line-height: 1;
+        }
+
+        .year-card.selected h3 {
+            color: #C8102E;
+        }
+
+        .year-info .year-status {
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .year-details {
+            border-top: 1px solid #f0f0f0;
+            padding-top: 12px;
+            font-size: 12px;
+        }
+
+        .year-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+            .year-detail-item .label {
+                color: #999;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .year-detail-item .value {
+                color: #333;
+                font-weight: 600;
+            }
+
+        .btn-select-year {
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #f5f6fa;
+            color: #555;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+            .btn-select-year:hover {
+                background: linear-gradient(135deg, #C8102E, #e63950);
+                color: #fff;
+            }
+
+        .year-card.selected .btn-select-year {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: #fff;
+        }
+
+        /* Add Card */
+        .year-card-add {
+            border: 2px dashed #ddd;
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 230px;
+        }
+
+            .year-card-add:hover {
+                border-color: #C8102E;
+                background: rgba(200,16,46,0.03);
+            }
+
+            .year-card-add i {
+                font-size: 38px;
+                color: #C8102E;
+                margin-bottom: 12px;
+            }
+
+            .year-card-add h4 {
+                font-size: 14px;
+                color: #333;
+            }
+
+            .year-card-add p {
+                font-size: 11px;
+                color: #999;
+                margin-top: 4px;
+            }
+
+        .empty-state {
+            padding: 60px 30px;
+            text-align: center;
+        }
+
+            .empty-state i {
+                font-size: 60px;
+                color: #ddd;
+                margin-bottom: 20px;
+            }
+
+            .empty-state h3 {
+                font-size: 18px;
+                color: #666;
+                margin-bottom: 10px;
+            }
+
+            .empty-state p {
+                font-size: 13px;
+                color: #999;
+                margin-bottom: 20px;
+            }
+    </style>
+}
+
+<div class="settings-container">
+    @await Html.PartialAsync("_SettingsSidebar")
+
+    <div class="settings-content animate__animated animate__fadeInRight">
+        <div class="content-header">
+            <div class="content-header-left">
+                <div class="content-header-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div>
+                    <h1>Base de Données</h1>
+                    <p>Sélection de l'exercice de travail (fichiers DBF)</p>
+                </div>
+            </div>
+            <button class="btn-action btn-primary-red" onclick="openCreateYearModal()">
+                <i class="fas fa-plus"></i>
+                Nouvel exercice
+            </button>
+        </div>
+
+        <!-- Path Display -->
+        <div class="path-display">
+            <div class="path-icon">
+                <i class="fas fa-folder-tree"></i>
+            </div>
+            <div class="path-info">
+                <div class="label">Chemin racine PCSTOCK</div>
+                <div class="value">@Model.RootPath</div>
+            </div>
+            @if (Model.PathExists)
+            {
+                <div class="path-status-badge online">
+                    <span class="dot"></span>
+                    Accessible
+                </div>
+            }
+            else
+            {
+                <div class="path-status-badge offline">
+                    <span class="dot"></span>
+                    Introuvable
+                </div>
+            }
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="mini-stat">
+                <div class="mini-stat-icon red"><i class="fas fa-folder-tree"></i></div>
+                <div class="mini-stat-info">
+                    <div class="value">@Model.AvailableYears.Count</div>
+                    <div class="label">Exercices</div>
+                </div>
+            </div>
+            <div class="mini-stat">
+                <div class="mini-stat-icon blue"><i class="fas fa-calendar-check"></i></div>
+                <div class="mini-stat-info">
+                    <div class="value">@(string.IsNullOrEmpty(Model.SelectedYear) ? "—" : Model.SelectedYear)</div>
+                    <div class="label">Actuel</div>
+                </div>
+            </div>
+            <div class="mini-stat">
+                <div class="mini-stat-icon green"><i class="fas fa-database"></i></div>
+                <div class="mini-stat-info">
+                    <div class="value">@Model.AvailableYears.Sum(y => y.FileCount)</div>
+                    <div class="label">Fichiers DBF</div>
+                </div>
+            </div>
+            <div class="mini-stat">
+                <div class="mini-stat-icon orange"><i class="fas fa-hard-drive"></i></div>
+                <div class="mini-stat-info">
+                    <div class="value">@CosiderStock.Models.SettingsHelper.FormatFileSize(Model.AvailableYears.Sum(y => y.TotalSize))</div>
+                    <div class="label">Taille</div>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.SelectedYear))
+        {
+            <div class="current-selection">
+                <div class="current-selection-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="current-selection-info">
+                    <div class="label">Exercice sélectionné</div>
+                    <div class="value">Année @Model.SelectedYear</div>
+                    <div class="path">@Model.SelectedYearPath</div>
+                </div>
+            </div>
+        }
+
+        <!-- Years Grid -->
+        @if (Model.AvailableYears.Count == 0)
+        {
+            <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <h3>Aucun exercice trouvé</h3>
+                <p>Créez votre premier exercice pour commencer</p>
+                <button class="btn-action btn-primary-red" onclick="openCreateYearModal()">
+                    <i class="fas fa-plus"></i> Créer un exercice
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="years-grid">
+                @foreach (var year in Model.AvailableYears)
+                {
+                    <div class="year-card @(year.IsSelected ? "selected" : "") @(!year.IsValid ? "invalid" : "")">
+                        <div class="year-card-header">
+                            <div class="year-icon">
+                                <i class="fas @(year.IsValid ? "fa-calendar" : "fa-folder")"></i>
+                            </div>
+                            <div class="year-info">
+                                <h3>@year.Year</h3>
+                                <div class="year-status">
+                                    @if (year.IsValid)
+                                    {
+                                        <span><i class="fas fa-check-circle" style="color:#2ecc71;"></i> Exercice</span>
+                                    }
+                                    else
+                                    {
+                                        <span><i class="fas fa-folder"></i> Dossier</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="year-details">
+                            <div class="year-detail-item">
+                                <div class="label"><i class="fas fa-file"></i> Fichiers</div>
+                                <div class="value">@year.FileCount</div>
+                            </div>
+                            <div class="year-detail-item">
+                                <div class="label"><i class="fas fa-database"></i> Taille</div>
+                                <div class="value">@CosiderStock.Models.SettingsHelper.FormatFileSize(year.TotalSize)</div>
+                            </div>
+                            <div class="year-detail-item">
+                                <div class="label"><i class="fas fa-clock"></i> Modifié</div>
+                                <div class="value">@year.LastModified.ToString("dd/MM/yy")</div>
+                            </div>
+                        </div>
+                        <button class="btn-select-year" onclick="selectYear('@year.Year', '@year.FullPath.Replace("\\", "\\\\")')">
+                            @if (year.IsSelected)
+                            {
+                                <i class="fas fa-check-circle"></i><span>Sélectionné</span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-check"></i><span>Sélectionner</span>
+                            }
+                        </button>
+                    </div>
+                }
+
+                <div class="year-card year-card-add" onclick="openCreateYearModal()">
+                    <i class="fas fa-plus-circle"></i>
+                    <h4>Nouvel Exercice</h4>
+                    <p>Créer une nouvelle année</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal Créer Année -->
+<div class="modal-overlay" id="createYearModal">
+    <div class="modal-content" style="max-width:450px;">
+        <div class="modal-header">
+            <div class="modal-icon">
+                <i class="fas fa-calendar-plus"></i>
+            </div>
+            <div>
+                <div class="modal-title">Créer un exercice</div>
+                <div class="modal-subtitle">Nouveau dossier d'année</div>
+            </div>
+            <button class="modal-close" onclick="closeCreateYearModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label"><i class="fas fa-calendar"></i> Année (4 chiffres)</label>
+                <input type="text" class="form-input" id="newYearInput" placeholder="Ex: 2027" maxlength="4">
+                <p style="margin-top:8px; font-size:11px; color:#94a3b8;">
+                    <i class="fas fa-info-circle"></i> Entrez une année entre 1990 et 2100
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-action btn-secondary-gray" onclick="closeCreateYearModal()">Annuler</button>
+            <button class="btn-action btn-primary-red" onclick="createNewYear()">
+                <i class="fas fa-plus"></i> Créer
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+@section scripts {
+    <script>
+        function showToast(title, message, type) {
+            type = type || 'info';
+            var container = document.getElementById('toastContainer');
+            var toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            var iconClass = 'fa-info-circle';
+            if (type === 'success') iconClass = 'fa-check-circle';
+            else if (type === 'error') iconClass = 'fa-times-circle';
+            else if (type === 'warning') iconClass = 'fa-exclamation-triangle';
+            toast.innerHTML = '<i class="fas ' + iconClass + '"></i><div class="toast-content"><div class="toast-title">' + title + '</div><div class="toast-message">' + message + '</div></div>';
+            container.appendChild(toast);
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { toast.remove(); }, 400);
+            }, 3500);
+        }
+
+        function selectYear(year, fullPath) {
+            fetch('@Url.Action("SelectYear", "Settings")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'year=' + encodeURIComponent(year) + '&fullPath=' + encodeURIComponent(fullPath)
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Succès', 'Exercice ' + year + ' sélectionné', 'success');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast('Erreur', data.message, 'error');
+                    }
+                });
+        }
+
+        function openCreateYearModal() {
+            document.getElementById('createYearModal').classList.add('active');
+            document.getElementById('newYearInput').value = '';
+            setTimeout(() => document.getElementById('newYearInput').focus(), 200);
+        }
+
+        function closeCreateYearModal() {
+            document.getElementById('createYearModal').classList.remove('active');
+        }
+
+        function createNewYear() {
+            var year = document.getElementById('newYearInput').value.trim();
+            if (!year || year.length !== 4 || isNaN(year)) {
+                showToast('Erreur', 'Année invalide (4 chiffres)', 'error');
+                return;
+            }
+            fetch('@Url.Action("CreateYearFolder", "Settings")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'year=' + encodeURIComponent(year)
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Succès', data.message, 'success');
+                        closeCreateYearModal();
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast('Erreur', data.message, 'error');
+                    }
+                });
+        }
+
+        document.getElementById('createYearModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCreateYearModal();
+        });
+
+        document.getElementById('newYearInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') createNewYear();
+        });
+    </script>
+}

@@ -1,0 +1,595 @@
+﻿@{
+    ViewBag.Title = "Bienvenue";
+    Layout = "_LoginLayout";
+}
+
+@section styles {
+    <style>
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+
+        /* ===== SPLASH SCREEN ===== */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 30%, #16213e 60%, #C8102E 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        /* Particules animées */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(200, 16, 46, 0.6);
+            border-radius: 50%;
+            animation: floatParticle linear infinite;
+        }
+
+        @@keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Lignes géométriques */
+        .geo-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .geo-line {
+            position: absolute;
+            background: rgba(200, 16, 46, 0.08);
+            transform-origin: center;
+        }
+
+            .geo-line:nth-child(1) {
+                width: 200%;
+                height: 1px;
+                top: 30%;
+                left: -50%;
+                transform: rotate(-15deg);
+                animation: lineGlow 4s ease-in-out infinite;
+            }
+
+            .geo-line:nth-child(2) {
+                width: 200%;
+                height: 1px;
+                top: 60%;
+                left: -50%;
+                transform: rotate(10deg);
+                animation: lineGlow 4s ease-in-out infinite 1s;
+            }
+
+            .geo-line:nth-child(3) {
+                width: 1px;
+                height: 200%;
+                left: 25%;
+                top: -50%;
+                transform: rotate(5deg);
+                animation: lineGlow 4s ease-in-out infinite 2s;
+            }
+
+        @@keyframes lineGlow {
+            0%, 100% {
+                background: rgba(200, 16, 46, 0.05);
+            }
+
+            50% {
+                background: rgba(200, 16, 46, 0.15);
+            }
+        }
+
+        /* Cercles décoratifs */
+        .deco-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(200, 16, 46, 0.1);
+            animation: pulseCircle 6s ease-in-out infinite;
+        }
+
+            .deco-circle:nth-child(1) {
+                width: 400px;
+                height: 400px;
+                top: -100px;
+                right: -100px;
+            }
+
+            .deco-circle:nth-child(2) {
+                width: 300px;
+                height: 300px;
+                bottom: -80px;
+                left: -80px;
+                animation-delay: 2s;
+            }
+
+            .deco-circle:nth-child(3) {
+                width: 200px;
+                height: 200px;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                animation-delay: 4s;
+            }
+
+        @@keyframes pulseCircle {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.6;
+            }
+        }
+
+        /* Logo Container */
+        .splash-logo-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .splash-logo-ring {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: 3px solid rgba(200, 16, 46, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            position: relative;
+            animation: logoRingPulse 3s ease-in-out infinite;
+        }
+
+            .splash-logo-ring::before {
+                content: '';
+                position: absolute;
+                width: 180px;
+                height: 180px;
+                border-radius: 50%;
+                border: 1px solid rgba(200, 16, 46, 0.15);
+                animation: logoRingRotate 10s linear infinite;
+            }
+
+            .splash-logo-ring::after {
+                content: '';
+                position: absolute;
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                border: 1px dashed rgba(200, 16, 46, 0.1);
+                animation: logoRingRotate 15s linear infinite reverse;
+            }
+
+        @@keyframes logoRingPulse {
+            0%, 100% {
+                border-color: rgba(200, 16, 46, 0.3);
+                box-shadow: 0 0 20px rgba(200, 16, 46, 0.1);
+            }
+
+            50% {
+                border-color: rgba(200, 16, 46, 0.6);
+                box-shadow: 0 0 40px rgba(200, 16, 46, 0.2);
+            }
+        }
+
+        @@keyframes logoRingRotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .splash-logo-inner {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #C8102E, #e63950);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 40px rgba(200, 16, 46, 0.3);
+        }
+
+        .splash-logo-text {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+            font-style: italic;
+            line-height: 1.1;
+            text-align: center;
+        }
+
+            .splash-logo-text small {
+                display: block;
+                font-size: 8px;
+                font-weight: 400;
+                letter-spacing: 3px;
+                font-style: normal;
+                margin-top: 2px;
+                opacity: 0.9;
+            }
+
+        /* Company Name */
+        .splash-company {
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+            .splash-company h1 {
+                font-size: 52px;
+                font-weight: 900;
+                font-style: italic;
+                color: #C8102E;
+                letter-spacing: -1px;
+                text-shadow: 0 4px 20px rgba(200, 16, 46, 0.3);
+            }
+
+            .splash-company .subtitle {
+                font-size: 16px;
+                color: rgba(255,255,255,0.6);
+                letter-spacing: 8px;
+                text-transform: uppercase;
+                margin-top: 5px;
+                font-weight: 300;
+            }
+
+        /* System Name */
+        .splash-system {
+            margin-top: 40px;
+            text-align: center;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .splash-system-badge {
+            display: inline-block;
+            background: rgba(200, 16, 46, 0.15);
+            border: 1px solid rgba(200, 16, 46, 0.3);
+            padding: 10px 30px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+            .splash-system-badge h2 {
+                font-size: 15px;
+                font-weight: 600;
+                color: #fff;
+                letter-spacing: 3px;
+            }
+
+                .splash-system-badge h2 i {
+                    color: #C8102E;
+                    margin-right: 8px;
+                }
+
+        .splash-system p {
+            margin-top: 12px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 1px;
+        }
+
+        /* Loading Bar */
+        .splash-loading {
+            margin-top: 50px;
+            text-align: center;
+            animation: fadeInUp 1s ease-out 0.9s both;
+        }
+
+        .loading-bar-container {
+            width: 280px;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #C8102E, #ff4757, #C8102E);
+            border-radius: 10px;
+            animation: loadProgress 3s ease-in-out forwards;
+            background-size: 200% 100%;
+            animation: loadProgress 3s ease-in-out forwards, shimmer 1s linear infinite;
+        }
+
+        @@keyframes loadProgress {
+            0% {
+                width: 0%;
+            }
+
+            30% {
+                width: 40%;
+            }
+
+            60% {
+                width: 70%;
+            }
+
+            80% {
+                width: 85%;
+            }
+
+            100% {
+                width: 100%;
+            }
+        }
+
+        @@keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .loading-percentage {
+            font-size: 12px;
+            color: #C8102E;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Version */
+        .splash-version {
+            position: absolute;
+            bottom: 25px;
+            text-align: center;
+            width: 100%;
+            z-index: 10;
+            animation: fadeIn 1s ease-out 1.2s both;
+        }
+
+            .splash-version p {
+                font-size: 10px;
+                color: rgba(255,255,255,0.25);
+                letter-spacing: 2px;
+            }
+
+        /* Fade Out */
+        .splash-screen.fade-out {
+            animation: splashFadeOut 0.8s ease-in-out forwards;
+        }
+
+        @@keyframes splashFadeOut {
+            0% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* ===== Features Icons ===== */
+        .splash-features {
+            display: flex;
+            gap: 40px;
+            margin-top: 35px;
+            animation: fadeInUp 1s ease-out 0.8s both;
+        }
+
+        .splash-feature-item {
+            text-align: center;
+        }
+
+            .splash-feature-item i {
+                font-size: 20px;
+                color: rgba(200, 16, 46, 0.8);
+                margin-bottom: 6px;
+            }
+
+            .splash-feature-item span {
+                display: block;
+                font-size: 10px;
+                color: rgba(255,255,255,0.4);
+                letter-spacing: 1px;
+            }
+    </style>
+}
+
+<!-- SPLASH SCREEN -->
+<div class="splash-screen" id="splashScreen">
+    <!-- Cercles décoratifs -->
+    <div class="deco-circle"></div>
+    <div class="deco-circle"></div>
+    <div class="deco-circle"></div>
+
+    <!-- Lignes géométriques -->
+    <div class="geo-lines">
+        <div class="geo-line"></div>
+        <div class="geo-line"></div>
+        <div class="geo-line"></div>
+    </div>
+
+    <!-- Particules -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Contenu -->
+    <div class="splash-logo-container">
+        <div class="splash-logo-ring">
+            <div class="splash-logo-inner">
+                <div class="splash-logo-text">
+                    cosider
+                    <small>TRAVAUX PUBLICS</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="splash-company">
+        <h1>COSIDER</h1>
+        <div class="subtitle">Travaux Publics</div>
+    </div>
+
+    <div class="splash-system">
+        <div class="splash-system-badge">
+            <h2><i class="fas fa-boxes-stacked"></i> GESTION DE STOCK</h2>
+        </div>
+        <p>Système intégré de gestion des stocks et approvisionnements</p>
+    </div>
+
+    <div class="splash-features">
+        <div class="splash-feature-item">
+            <i class="fas fa-shield-halved"></i>
+            <span>Sécurisé</span>
+        </div>
+        <div class="splash-feature-item">
+            <i class="fas fa-bolt"></i>
+            <span>Performant</span>
+        </div>
+        <div class="splash-feature-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Analytique</span>
+        </div>
+        <div class="splash-feature-item">
+            <i class="fas fa-mobile-screen"></i>
+            <span>Responsive</span>
+        </div>
+    </div>
+
+    <div class="splash-loading">
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loadingBar"></div>
+        </div>
+        <div class="loading-text" id="loadingText">Initialisation du système...</div>
+        <div class="loading-percentage" id="loadingPercentage">0%</div>
+    </div>
+
+    <div class="splash-version">
+        <p>VERSION 1.0.0 &nbsp;|&nbsp; © 2025 COSIDER TRAVAUX PUBLICS</p>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        // Créer les particules
+        (function createParticles() {
+            var container = document.getElementById('particles');
+            for (var i = 0; i < 30; i++) {
+                var particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 8 + 4) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.width = (Math.random() * 4 + 2) + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.opacity = Math.random() * 0.5 + 0.2;
+                container.appendChild(particle);
+            }
+        })();
+
+        // Loading animation
+        var messages = [
+            "Initialisation du système...",
+            "Connexion à la base de données...",
+            "Chargement des modules...",
+            "Vérification des fichiers DBF...",
+            "Préparation de l'interface...",
+            "Prêt !"
+        ];
+
+        var percentage = 0;
+        var msgIndex = 0;
+        var loadingText = document.getElementById('loadingText');
+        var loadingPercentage = document.getElementById('loadingPercentage');
+
+        var interval = setInterval(function() {
+            percentage += Math.floor(Math.random() * 8) + 3;
+            if (percentage > 100) percentage = 100;
+            loadingPercentage.textContent = percentage + '%';
+
+            var newMsgIndex = Math.floor((percentage / 100) * (messages.length - 1));
+            if (newMsgIndex !== msgIndex) {
+                msgIndex = newMsgIndex;
+                loadingText.textContent = messages[msgIndex];
+            }
+
+            if (percentage >= 100) {
+                clearInterval(interval);
+                loadingText.textContent = messages[messages.length - 1];
+                setTimeout(function() {
+                    document.getElementById('splashScreen').classList.add('fade-out');
+                    setTimeout(function() {
+                        window.location.href = '@Url.Action("Login", "Account")';
+                    }, 800);
+                }, 500);
+            }
+        }, 80);
+    </script>
+}

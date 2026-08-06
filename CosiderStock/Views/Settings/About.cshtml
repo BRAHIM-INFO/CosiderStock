@@ -1,0 +1,255 @@
+﻿@{
+    ViewBag.Title = "À propos";
+    Layout = "_DashboardLayout";
+}
+
+@section styles {
+    @await Html.PartialAsync("_SettingsStyles")
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, #C8102E, #e63950);
+            border-radius: 20px;
+            padding: 40px;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .about-hero::before {
+                content: '';
+                position: absolute;
+                width: 400px;
+                height: 400px;
+                background: rgba(255,255,255,0.08);
+                border-radius: 50%;
+                top: -150px;
+                right: -100px;
+            }
+
+        .about-hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .about-logo-badge {
+            width: 90px;
+            height: 90px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .about-hero h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -1px;
+        }
+
+        .about-hero p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+
+        .about-version {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .about-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s;
+        }
+
+            .about-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.06);
+            }
+
+        .about-card-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+            .about-card-icon.red {
+                background: rgba(200,16,46,0.1);
+                color: #C8102E;
+            }
+
+            .about-card-icon.blue {
+                background: rgba(52,152,219,0.1);
+                color: #3498db;
+            }
+
+            .about-card-icon.green {
+                background: rgba(46,204,113,0.1);
+                color: #2ecc71;
+            }
+
+            .about-card-icon.orange {
+                background: rgba(230,126,34,0.1);
+                color: #e67e22;
+            }
+
+            .about-card-icon.purple {
+                background: rgba(155,89,182,0.1);
+                color: #9b59b6;
+            }
+
+            .about-card-icon.cyan {
+                background: rgba(26,188,156,0.1);
+                color: #1abc9c;
+            }
+
+        .about-card h3 {
+            font-size: 15px;
+            color: #1a1a2e;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .about-card p {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .credits-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 18px;
+            text-align: center;
+            color: #fff;
+        }
+
+            .credits-section h3 {
+                font-size: 16px;
+                margin-bottom: 10px;
+                color: #C8102E;
+                font-weight: 700;
+            }
+
+            .credits-section p {
+                font-size: 13px;
+                opacity: 0.8;
+                line-height: 1.7;
+            }
+
+            .credits-section .developer-name {
+                font-size: 20px;
+                font-weight: 800;
+                color: #fff;
+                margin-top: 10px;
+                letter-spacing: -0.5px;
+            }
+    </style>
+}
+
+<div class="settings-container">
+    @await Html.PartialAsync("_SettingsSidebar")
+
+    <div class="settings-content animate__animated animate__fadeInRight">
+        <div class="content-header">
+            <div class="content-header-left">
+                <div class="content-header-icon" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                    <i class="fas fa-circle-info"></i>
+                </div>
+                <div>
+                    <h1>À propos du système</h1>
+                    <p>Informations sur l'application</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-hero">
+            <div class="about-hero-content">
+                <div class="about-logo-badge">
+                    <i class="fas fa-boxes-stacked"></i>
+                </div>
+                <h1>COSIDER STOCK</h1>
+                <p>Système intégré de gestion de stock pour COSIDER Travaux Publics</p>
+                <div class="about-version">
+                    <i class="fas fa-code-branch"></i> VERSION 1.0.0
+                </div>
+            </div>
+        </div>
+
+        <div class="about-grid">
+            <div class="about-card">
+                <div class="about-card-icon red"><i class="fas fa-building"></i></div>
+                <h3>Client</h3>
+                <p>COSIDER Travaux Publics - Filiale du groupe COSIDER Algérie</p>
+            </div>
+
+            <div class="about-card">
+                <div class="about-card-icon blue"><i class="fas fa-code"></i></div>
+                <h3>Technologies</h3>
+                <p>ASP.NET Core MVC, C#, SQLite, HTML5, CSS3, JavaScript</p>
+            </div>
+
+            <div class="about-card">
+                <div class="about-card-icon green"><i class="fas fa-database"></i></div>
+                <h3>Base de données</h3>
+                <p>Fichiers DBF (PCSTOCK) + SQLite pour la gestion utilisateurs</p>
+            </div>
+
+            <div class="about-card">
+                <div class="about-card-icon orange"><i class="fas fa-shield-halved"></i></div>
+                <h3>Sécurité</h3>
+                <p>Cryptage BCrypt, sessions sécurisées, contrôle d'accès par rôle</p>
+            </div>
+
+            <div class="about-card">
+                <div class="about-card-icon purple"><i class="fas fa-language"></i></div>
+                <h3>Interface</h3>
+                <p>Design moderne et responsive en langue française</p>
+            </div>
+
+            <div class="about-card">
+                <div class="about-card-icon cyan"><i class="fas fa-calendar"></i></div>
+                <h3>Année</h3>
+                <p>@DateTime.Now.Year - Système développé et maintenu</p>
+            </div>
+        </div>
+
+        <div class="credits-section">
+            <h3><i class="fas fa-heart"></i> Développé avec passion par</h3>
+            <div class="developer-name">BENYOUNES IBRAHIM</div>
+            <p>
+                Software Engineer<br><br>
+                © @DateTime.Now.Year COSIDER Travaux Publics. Tous droits réservés.
+            </p>
+        </div>
+    </div>
+</div>
